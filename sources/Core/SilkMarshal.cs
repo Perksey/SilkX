@@ -109,7 +109,6 @@ public static unsafe class SilkMarshal
                         ArrayPool<byte>.Shared.Return(arr);
                     }
                 }
-                return ret;
             }
             case 2:
             {
@@ -142,7 +141,6 @@ public static unsafe class SilkMarshal
                         ArrayPool<byte>.Shared.Return(arr);
                     }
                 }
-                return ret;
             }
             default:
             {
