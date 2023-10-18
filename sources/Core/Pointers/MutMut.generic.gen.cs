@@ -209,7 +209,7 @@ public unsafe readonly ref struct MutMut<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(MutMut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(MutMut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="MutMut{T}"/> from a pointer
@@ -223,7 +223,7 @@ public unsafe readonly ref struct MutMut<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator T**(MutMut<T> ptr) => (T**)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator T**(MutMut<T> ptr) => (T**)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     
     /// <summary>
     /// creates a <see cref="MutMut{T}"/> from an array
@@ -250,78 +250,6 @@ public unsafe readonly ref struct MutMut<T>
         );
         IL.Emit.Ret();
         throw IL.Unreachable();
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutMut{T}"/> from a string span.
-    /// </summary>
-    /// <param name="span">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutMut<T>(Span<string> span)
-    {
-        if (
-            typeof(T) != typeof(byte)
-            && typeof(T) != typeof(sbyte)
-            && typeof(T) != typeof(char)
-            && typeof(T) != typeof(short)
-            && typeof(T) != typeof(ushort)
-            && typeof(T) != typeof(int)
-            && typeof(T) != typeof(uint)
-        )
-        {
-            throw new InvalidCastException();
-        }
-
-        return new MutMut<T>(ref SilkMarshal.StringArrayToNative(span, sizeof(T)));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutMut{T}"/> from a string span.
-    /// </summary>
-    /// <param name="span">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutMut<T>(ReadOnlySpan<string> span)
-    {
-        if (
-            typeof(T) != typeof(byte)
-            && typeof(T) != typeof(sbyte)
-            && typeof(T) != typeof(char)
-            && typeof(T) != typeof(short)
-            && typeof(T) != typeof(ushort)
-            && typeof(T) != typeof(int)
-            && typeof(T) != typeof(uint)
-        )
-        {
-            throw new InvalidCastException();
-        }
-
-        return new MutMut<T>(ref SilkMarshal.StringArrayToNative(span, sizeof(T)));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutMut{T}"/> from a string array.
-    /// </summary>
-    /// <param name="array">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutMut<T>(string[] array)
-    {
-        if (
-            typeof(T) != typeof(byte)
-            && typeof(T) != typeof(sbyte)
-            && typeof(T) != typeof(char)
-            && typeof(T) != typeof(short)
-            && typeof(T) != typeof(ushort)
-            && typeof(T) != typeof(int)
-            && typeof(T) != typeof(uint)
-        )
-        {
-            throw new InvalidCastException();
-        }
-
-        return new MutMut<T>(ref SilkMarshal.StringArrayToNative(array, sizeof(T)));
     }
 
     /// <summary>

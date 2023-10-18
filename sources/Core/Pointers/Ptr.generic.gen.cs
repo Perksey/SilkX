@@ -197,7 +197,7 @@ public unsafe readonly ref struct Ptr<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(Ptr<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(Ptr<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="Ptr{T}"/> from a pointer
@@ -211,7 +211,7 @@ public unsafe readonly ref struct Ptr<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator T*(Ptr<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator T*(Ptr<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
         /// <summary>
     /// Creates a span with the given length from this pointer.
     /// </summary>
@@ -269,6 +269,32 @@ public unsafe readonly ref struct Ptr<T>
     }
 
     /// <summary>
+    /// creates a <see cref="Ptr{T}"/> from an array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(T[] array) => array.AsSpan();
+
+    /// <summary>
+    /// creates a <see cref="Ptr{T}"/> from a 2D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(T[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
+
+    /// <summary>
+    /// creates a <see cref="Ptr{T}"/> from a 3D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(T[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);    /// <summary>
+    /// Creates a <see cref="Ptr{T}"/> from a ReadOnlySpan
+    /// </summary>
+    /// <param name="span"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(ReadOnlySpan<T> span) => new(in span.GetPinnableReference());
+
+    /// <summary>
     /// creates a <see cref="Ptr{T}"/> from a string
     /// </summary>
     /// <param name="str"></param>
@@ -299,32 +325,6 @@ public unsafe readonly ref struct Ptr<T>
         Throw();
         return default;
     }
-
-    /// <summary>
-    /// creates a <see cref="Ptr{T}"/> from an array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T[] array) => array.AsSpan();
-
-    /// <summary>
-    /// creates a <see cref="Ptr{T}"/> from a 2D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
-
-    /// <summary>
-    /// creates a <see cref="Ptr{T}"/> from a 3D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);    /// <summary>
-    /// Creates a <see cref="Ptr{T}"/> from a ReadOnlySpan
-    /// </summary>
-    /// <param name="span"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(ReadOnlySpan<T> span) => new(in span.GetPinnableReference());
 
     /// <summary>
     /// Create a non-generic version of <see cref="Ptr{T}"/>

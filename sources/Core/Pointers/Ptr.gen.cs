@@ -177,14 +177,14 @@ public readonly ref struct Ptr
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator byte*(Ptr ptr) => (byte*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.Ref));
+    public unsafe static explicit operator byte*(Ptr ptr) => (byte*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.Ref));
 
     /// <summary>
     /// Creates a void pointer from a <see cref="Ptr"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator void*(Ptr ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.Ref));
+    public unsafe static explicit operator void*(Ptr ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.Ref));
 
     /// <summary>
     /// Creates a string from a <see cref="Ptr"/>

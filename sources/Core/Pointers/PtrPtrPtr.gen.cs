@@ -208,7 +208,7 @@ public unsafe readonly ref struct PtrPtrPtr
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(PtrPtrPtr ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(PtrPtrPtr ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="PtrPtrPtr"/> from a pointer
@@ -222,7 +222,7 @@ public unsafe readonly ref struct PtrPtrPtr
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator byte***(PtrPtrPtr ptr) => (byte***)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator byte***(PtrPtrPtr ptr) => (byte***)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     
     /// <summary>
     /// creates a <see cref="PtrPtrPtr"/> from an array

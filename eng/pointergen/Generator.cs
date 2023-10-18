@@ -4,6 +4,8 @@ namespace PointerGenerator
 {
     public static class Generator
     {
+        const bool OUTERMOST_ON_RIGHT = true;
+
         public enum PointerType : byte
         {
             Ptr,
@@ -243,14 +245,14 @@ public readonly ref struct {{name}}
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator byte*({{name}} ptr) => (byte*)Unsafe.AsPointer({{getObjectRef}});
+    public unsafe static explicit operator byte*({{name}} ptr) => (byte*)Unsafe.AsPointer({{getObjectRef}});
 
     /// <summary>
     /// Creates a void pointer from a <see cref="{{name}}"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator void*({{name}} ptr) => Unsafe.AsPointer({{getObjectRef}});
+    public unsafe static explicit operator void*({{name}} ptr) => Unsafe.AsPointer({{getObjectRef}});
 
     /// <summary>
     /// Creates a string from a <see cref="{{name}}"/>
@@ -301,15 +303,15 @@ $$"""
             if (types.Length == 1 && !generic)
                 return GenerateSingleDimensionPointerType(out name, types[0]);
 
-            bool outerMutability = types[0] == PointerType.Mut;
+            bool outerMutability = OUTERMOST_ON_RIGHT ? types.Last() == PointerType.Mut : types[0] == PointerType.Mut;
+            bool innerMutability = OUTERMOST_ON_RIGHT ? types[0] == PointerType.Mut : types.Last() == PointerType.Mut;
             name = string.Join("", types);
-            string upperType = name.Remove(name.Length - 3);
+            string upperType = OUTERMOST_ON_RIGHT ? name.Remove(0, 3) : name.Remove(name.Length - 3);
             string fullName = name;
             string fullCommentName = name;
             string rOField = outerMutability ? string.Empty : "readonly ";
             string rOInRef = outerMutability ? "ref" : "in";
             string spanType = outerMutability ? "Span" : "ReadOnlySpan";
-
 
             string arrayType;
             string arrayConversions = string.Empty;
@@ -330,6 +332,8 @@ $$"""
                     upperTypeRef = $"(typeof({upperType}<>).MakeGenericType(typeof(T)))";
                     upperType += "<T>";
 
+                    string ILType = types.Length > 1 ? "nuint" : arrayType;
+
                     indexer =
 $"""
 IL.Emit.Ldarg_0();
@@ -340,7 +344,7 @@ IL.Emit.Ldarg_0();
                 )
             );
             IL.Emit.Ldarg_1();
-            IL.Emit.Sizeof<nuint>();
+            IL.Emit.Sizeof<{ILType}>();
             IL.Emit.Mul();
             IL.Emit.Add();
             IL.Emit.Ret();
@@ -359,6 +363,8 @@ IL.Emit.Ldarg_0();
                 typeRef = $"(typeof({name}))";
                 upperTypeRef = $"(typeof({upperType}))";
 
+                string ILType = types.Length > 1 ? "nuint" : arrayType;
+
                 indexer =
 $"""
 IL.Emit.Ldarg_0();
@@ -369,7 +375,7 @@ IL.Emit.Ldarg_0();
                 )
             );
             IL.Emit.Ldarg_1();
-            IL.Emit.Sizeof<nuint>();
+            IL.Emit.Sizeof<{ILType}>();
             IL.Emit.Mul();
             IL.Emit.Add();
             IL.Emit.Ret();
@@ -431,7 +437,7 @@ $$"""
         IL.Emit.Ret();
         throw IL.Unreachable();
     }
-""" + (generic ?
+""" + (outerMutability ? "" : (generic ?
 $$"""
 
 
@@ -541,7 +547,7 @@ $$"""
     {
         return new {{fullName}}(ref SilkMarshal.StringArrayToNative(array, sizeof(byte)));
     }
-""");
+"""));
             }
             else
             {
@@ -604,6 +610,35 @@ $$"""
     }
 
     /// <summary>
+    /// creates a <see cref="{{fullCommentName}}"/> from an array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator {{fullName}}({{arrayType}}[] array) => array.AsSpan();
+
+    /// <summary>
+    /// creates a <see cref="{{fullCommentName}}"/> from a 2D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator {{fullName}}({{arrayType}}[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
+
+    /// <summary>
+    /// creates a <see cref="{{fullCommentName}}"/> from a 3D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator {{fullName}}({{arrayType}}[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
+""" + (outerMutability ? "" :
+$$"""
+    /// <summary>
+    /// Creates a <see cref="{{fullCommentName}}"/> from a ReadOnlySpan
+    /// </summary>
+    /// <param name="span"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator {{fullName}}(ReadOnlySpan<{{upperType}}> span) => new(in span.GetPinnableReference());
+
+    /// <summary>
     /// creates a <see cref="{{fullCommentName}}"/> from a string
     /// </summary>
     /// <param name="str"></param>
@@ -634,35 +669,6 @@ $$"""
         Throw();
         return default;
     }
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from an array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}({{arrayType}}[] array) => array.AsSpan();
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from a 2D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}({{arrayType}}[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from a 3D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}({{arrayType}}[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
-""" + (outerMutability ? "" :
-$"""
-    /// <summary>
-    /// Creates a <see cref="{fullCommentName}"/> from a ReadOnlySpan
-    /// </summary>
-    /// <param name="span"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {fullName}(ReadOnlySpan<{upperType}> span) => new(in span.GetPinnableReference());
 """);
             }
 
@@ -866,7 +872,7 @@ public unsafe readonly ref struct {{fullName}} {{whereClause}}
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*({{fullName}} ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*({{fullName}} ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="{{fullCommentName}}"/> from a pointer
@@ -880,7 +886,7 @@ public unsafe readonly ref struct {{fullName}} {{whereClause}}
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{arrayType}}{{ptrChars}}({{fullName}} ptr) => ({{arrayType}}{{ptrChars}})Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator {{arrayType}}{{ptrChars}}({{fullName}} ptr) => ({{arrayType}}{{ptrChars}})Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     {{arrayConversions}}
 """ + (generic ? 
 $$"""

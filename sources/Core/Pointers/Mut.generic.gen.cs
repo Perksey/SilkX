@@ -197,7 +197,7 @@ public unsafe readonly ref struct Mut<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(Mut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(Mut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="Mut{T}"/> from a pointer
@@ -211,7 +211,7 @@ public unsafe readonly ref struct Mut<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator T*(Mut<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator T*(Mut<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
         /// <summary>
     /// Creates a span with the given length from this pointer.
     /// </summary>
@@ -266,38 +266,6 @@ public unsafe readonly ref struct Mut<T>
         }
 
         throw new InvalidCastException();
-    }
-
-    /// <summary>
-    /// creates a <see cref="Mut{T}"/> from a string
-    /// </summary>
-    /// <param name="str"></param>
-    public static implicit operator Mut<T>(string str)
-    {
-        if (typeof(T) == typeof(char) || typeof(T) == typeof(ushort) || typeof(T) == typeof(short))
-        {
-            return new Mut<T>(
-                ref Unsafe.As<char, T>(ref Unsafe.AsRef(in str.GetPinnableReference()))
-            );
-        }
-
-        if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
-        {
-            return new Mut<T>(
-                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str)))
-            );
-        }
-
-        if (typeof(T) == typeof(uint) || typeof(T) == typeof(int))
-        {
-            return new Mut<T>(
-                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str, 4)))
-            );
-        }
-
-        static void Throw() => throw new InvalidCastException();
-        Throw();
-        return default;
     }
 
     /// <summary>

@@ -208,7 +208,7 @@ public unsafe readonly ref struct MutMutMut
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(MutMutMut ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(MutMutMut ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="MutMutMut"/> from a pointer
@@ -222,7 +222,7 @@ public unsafe readonly ref struct MutMutMut
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator byte***(MutMutMut ptr) => (byte***)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator byte***(MutMutMut ptr) => (byte***)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     
     /// <summary>
     /// creates a <see cref="MutMutMut"/> from an array
@@ -249,37 +249,5 @@ public unsafe readonly ref struct MutMutMut
         );
         IL.Emit.Ret();
         throw IL.Unreachable();
-    }    /// <summary>
-    /// Creates a <see cref="MutMutMut"/> from a string span.
-    /// </summary>
-    /// <param name="span">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutMutMut(Span<string[]> span)
-    {
-        return new MutMutMut(ref SilkMarshal.StringArrayToNative(span, sizeof(byte)));
-    }
-
-
-    /// <summary>
-    /// Creates a <see cref="MutMutMut"/> from a string span.
-    /// </summary>
-    /// <param name="span">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutMutMut(ReadOnlySpan<string[]> span)
-    {
-        return new MutMutMut(ref SilkMarshal.StringArrayToNative(span, sizeof(byte)));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutMutMut"/> from a string array.
-    /// </summary>
-    /// <param name="array">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutMutMut(string[][] array)
-    {
-        return new MutMutMut(ref SilkMarshal.StringArrayToNative(array, sizeof(byte)));
     }
 }

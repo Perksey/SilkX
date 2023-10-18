@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using SilkTouchX;
 
-System.Threading.Thread.Sleep(1000);
-
 var logging = new Option<LogLevel>(new[] { "--log-level", "-l" }, () => LogLevel.Information);
 var skip = new Option<string[]>(
     new[] { "--skip", "-s" },

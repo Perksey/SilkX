@@ -177,14 +177,14 @@ public readonly ref struct Mut
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator byte*(Mut ptr) => (byte*)Unsafe.AsPointer(ref ptr.Ref);
+    public unsafe static explicit operator byte*(Mut ptr) => (byte*)Unsafe.AsPointer(ref ptr.Ref);
 
     /// <summary>
     /// Creates a void pointer from a <see cref="Mut"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator void*(Mut ptr) => Unsafe.AsPointer(ref ptr.Ref);
+    public unsafe static explicit operator void*(Mut ptr) => Unsafe.AsPointer(ref ptr.Ref);
 
     /// <summary>
     /// Creates a string from a <see cref="Mut"/>

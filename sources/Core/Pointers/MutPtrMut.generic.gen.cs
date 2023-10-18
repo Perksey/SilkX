@@ -23,7 +23,7 @@ public unsafe readonly ref struct MutPtrMut<T>
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="Ref">The underlying ref.</param>
-    public MutPtrMut(ref MutPtr<T> @Ref)
+    public MutPtrMut(ref PtrMut<T> @Ref)
     {
         IL.Emit.Ldarg_0();
         IL.Emit.Ldarg_1();
@@ -49,7 +49,7 @@ public unsafe readonly ref struct MutPtrMut<T>
     /// <summary>
     /// The underlying reference
     /// </summary>
-    public readonly ref MutPtr<T> Ref
+    public readonly ref PtrMut<T> Ref
     {
         [MethodImpl(
             MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -80,7 +80,7 @@ public unsafe readonly ref struct MutPtrMut<T>
     /// Gets the item at the given offset from this pointer.
     /// </summary>
     /// <param name="index">The index.</param>
-    public ref MutPtr<T> this[nuint index]
+    public ref PtrMut<T> this[nuint index]
     {
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -209,7 +209,7 @@ public unsafe readonly ref struct MutPtrMut<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(MutPtrMut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(MutPtrMut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="MutPtrMut{T}"/> from a pointer
@@ -223,7 +223,7 @@ public unsafe readonly ref struct MutPtrMut<T>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator T***(MutPtrMut<T> ptr) => (T***)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator T***(MutPtrMut<T> ptr) => (T***)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     
     /// <summary>
     /// creates a <see cref="MutPtrMut{T}"/> from an array
@@ -245,83 +245,11 @@ public unsafe readonly ref struct MutPtrMut<T>
         IL.Emit.Newobj(
             MethodRef.Constructor(
                 TypeRef.Type(typeof(MutPtrMut<>).MakeGenericType(typeof(T))),
-                TypeRef.Type(typeof(MutPtr<>).MakeGenericType(typeof(T))).MakeByRefType()
+                TypeRef.Type(typeof(PtrMut<>).MakeGenericType(typeof(T))).MakeByRefType()
             )
         );
         IL.Emit.Ret();
         throw IL.Unreachable();
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutPtrMut{T}"/> from a string span.
-    /// </summary>
-    /// <param name="span">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutPtrMut<T>(Span<string[]> span)
-    {
-        if (
-            typeof(T) != typeof(byte)
-            && typeof(T) != typeof(sbyte)
-            && typeof(T) != typeof(char)
-            && typeof(T) != typeof(short)
-            && typeof(T) != typeof(ushort)
-            && typeof(T) != typeof(int)
-            && typeof(T) != typeof(uint)
-        )
-        {
-            throw new InvalidCastException();
-        }
-
-        return new MutPtrMut<T>(ref SilkMarshal.StringArrayToNative(span, sizeof(T)));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutPtrMut{T}"/> from a string span.
-    /// </summary>
-    /// <param name="span">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutPtrMut<T>(ReadOnlySpan<string[]> span)
-    {
-        if (
-            typeof(T) != typeof(byte)
-            && typeof(T) != typeof(sbyte)
-            && typeof(T) != typeof(char)
-            && typeof(T) != typeof(short)
-            && typeof(T) != typeof(ushort)
-            && typeof(T) != typeof(int)
-            && typeof(T) != typeof(uint)
-        )
-        {
-            throw new InvalidCastException();
-        }
-
-        return new MutPtrMut<T>(ref SilkMarshal.StringArrayToNative(span, sizeof(T)));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="MutPtrMut{T}"/> from a string array.
-    /// </summary>
-    /// <param name="array">The array.</param>
-    /// <returns>The pointer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator MutPtrMut<T>(string[][] array)
-    {
-        if (
-            typeof(T) != typeof(byte)
-            && typeof(T) != typeof(sbyte)
-            && typeof(T) != typeof(char)
-            && typeof(T) != typeof(short)
-            && typeof(T) != typeof(ushort)
-            && typeof(T) != typeof(int)
-            && typeof(T) != typeof(uint)
-        )
-        {
-            throw new InvalidCastException();
-        }
-
-        return new MutPtrMut<T>(ref SilkMarshal.StringArrayToNative(array, sizeof(T)));
     }
 
     /// <summary>

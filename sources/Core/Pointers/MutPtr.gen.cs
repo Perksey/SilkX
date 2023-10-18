@@ -22,7 +22,7 @@ public unsafe readonly ref struct MutPtr
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="Ref">The underlying ref.</param>
-    public MutPtr(ref Mut @Ref)
+    public MutPtr(ref readonly Ptr @Ref)
     {
         IL.Emit.Ldarg_0();
         IL.Emit.Ldarg_1();
@@ -40,7 +40,7 @@ public unsafe readonly ref struct MutPtr
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="InteriorRef">The underlying ref.</param>
-    public MutPtr(ref byte @InteriorRef)
+    public MutPtr(ref readonly byte @InteriorRef)
     {
         this.InteriorRef = ref @InteriorRef; 
     }
@@ -48,7 +48,7 @@ public unsafe readonly ref struct MutPtr
     /// <summary>
     /// The underlying reference
     /// </summary>
-    public readonly ref Mut Ref
+    public readonly ref readonly Ptr Ref
     {
         [MethodImpl(
             MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -73,13 +73,13 @@ public unsafe readonly ref struct MutPtr
     /// </summary>
     public readonly ref readonly byte GetInteriorRef() => ref InteriorRef;
 
-    private readonly ref byte InteriorRef;
+    private readonly ref readonly byte InteriorRef;
 
     /// <summary>
     /// Gets the item at the given offset from this pointer.
     /// </summary>
     /// <param name="index">The index.</param>
-    public ref Mut this[nuint index]
+    public ref readonly Ptr this[nuint index]
     {
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -109,7 +109,7 @@ public unsafe readonly ref struct MutPtr
     /// <remarks>
     /// This function allows a <see cref="MutPtr"/> to be used in a <c>fixed</c> statement.
     /// </remarks>
-    public ref byte* GetPinnableReference()
+    public ref readonly byte* GetPinnableReference()
     {
         IL.Emit.Ldarg_0();
         IL.Emit.Ldfld(
@@ -208,7 +208,7 @@ public unsafe readonly ref struct MutPtr
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator void*(MutPtr ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator void*(MutPtr ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
 
     /// <summary>
     /// Creates a <see cref="MutPtr"/> from a pointer
@@ -222,7 +222,7 @@ public unsafe readonly ref struct MutPtr
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator byte**(MutPtr ptr) => (byte**)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
+    public static explicit operator byte**(MutPtr ptr) => (byte**)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     
     /// <summary>
     /// creates a <see cref="MutPtr"/> from an array
@@ -244,7 +244,7 @@ public unsafe readonly ref struct MutPtr
         IL.Emit.Newobj(
             MethodRef.Constructor(
                 TypeRef.Type(typeof(MutPtr)),
-                TypeRef.Type(typeof(Mut)).MakeByRefType()
+                TypeRef.Type(typeof(Ptr)).MakeByRefType()
             )
         );
         IL.Emit.Ret();
