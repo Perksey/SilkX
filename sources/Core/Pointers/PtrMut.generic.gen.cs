@@ -23,7 +23,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="Ref">The underlying ref.</param>
-    public PtrMut(ref Mut<T> @Ref)
+    public PtrMut(ref readonly Ptr<T> @Ref)
     {
         IL.Emit.Ldarg_0();
         IL.Emit.Ldarg_1();
@@ -41,7 +41,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="InteriorRef">The underlying ref.</param>
-    private PtrMut(ref byte @InteriorRef)
+    internal PtrMut(ref readonly byte @InteriorRef)
     {
         this.InteriorRef = ref @InteriorRef; 
     }
@@ -49,7 +49,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// <summary>
     /// The underlying reference
     /// </summary>
-    public readonly ref Mut<T> Ref
+    public readonly ref readonly Ptr<T> Ref
     {
         [MethodImpl(
             MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -74,13 +74,13 @@ public unsafe readonly ref struct PtrMut<T>
     /// </summary>
     public readonly ref readonly byte GetInteriorRef() => ref InteriorRef;
 
-    private readonly ref byte InteriorRef;
+    private readonly ref readonly byte InteriorRef;
 
     /// <summary>
     /// Gets the item at the given offset from this pointer.
     /// </summary>
     /// <param name="index">The index.</param>
-    public ref Mut<T> this[nuint index]
+    public ref readonly Ptr<T> this[nuint index]
     {
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -110,7 +110,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// <remarks>
     /// This function allows a <see cref="PtrMut{T}"/> to be used in a <c>fixed</c> statement.
     /// </remarks>
-    public ref T* GetPinnableReference()
+    public ref readonly T* GetPinnableReference()
     {
         IL.Emit.Ldarg_0();
         IL.Emit.Ldfld(
@@ -245,7 +245,7 @@ public unsafe readonly ref struct PtrMut<T>
         IL.Emit.Newobj(
             MethodRef.Constructor(
                 TypeRef.Type(typeof(PtrMut<>).MakeGenericType(typeof(T))),
-                TypeRef.Type(typeof(Mut<>).MakeGenericType(typeof(T))).MakeByRefType()
+                TypeRef.Type(typeof(Ptr<>).MakeGenericType(typeof(T))).MakeByRefType()
             )
         );
         IL.Emit.Ret();
@@ -253,8 +253,80 @@ public unsafe readonly ref struct PtrMut<T>
     }
 
     /// <summary>
+    /// Creates a <see cref="PtrMut{T}"/> from a string span.
+    /// </summary>
+    /// <param name="span">The array.</param>
+    /// <returns>The pointer.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator PtrMut<T>(Span<string> span)
+    {
+        if (
+            typeof(T) != typeof(byte)
+            && typeof(T) != typeof(sbyte)
+            && typeof(T) != typeof(char)
+            && typeof(T) != typeof(short)
+            && typeof(T) != typeof(ushort)
+            && typeof(T) != typeof(int)
+            && typeof(T) != typeof(uint)
+        )
+        {
+            throw new InvalidCastException();
+        }
+
+        return new PtrMut<T>(ref SilkMarshal.StringArrayToNative(span, sizeof(T)));
+    }
+
+    /// <summary>
+    /// Creates a <see cref="PtrMut{T}"/> from a string span.
+    /// </summary>
+    /// <param name="span">The array.</param>
+    /// <returns>The pointer.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator PtrMut<T>(ReadOnlySpan<string> span)
+    {
+        if (
+            typeof(T) != typeof(byte)
+            && typeof(T) != typeof(sbyte)
+            && typeof(T) != typeof(char)
+            && typeof(T) != typeof(short)
+            && typeof(T) != typeof(ushort)
+            && typeof(T) != typeof(int)
+            && typeof(T) != typeof(uint)
+        )
+        {
+            throw new InvalidCastException();
+        }
+
+        return new PtrMut<T>(ref SilkMarshal.StringArrayToNative(span, sizeof(T)));
+    }
+
+    /// <summary>
+    /// Creates a <see cref="PtrMut{T}"/> from a string array.
+    /// </summary>
+    /// <param name="array">The array.</param>
+    /// <returns>The pointer.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator PtrMut<T>(string[] array)
+    {
+        if (
+            typeof(T) != typeof(byte)
+            && typeof(T) != typeof(sbyte)
+            && typeof(T) != typeof(char)
+            && typeof(T) != typeof(short)
+            && typeof(T) != typeof(ushort)
+            && typeof(T) != typeof(int)
+            && typeof(T) != typeof(uint)
+        )
+        {
+            throw new InvalidCastException();
+        }
+
+        return new PtrMut<T>(ref SilkMarshal.StringArrayToNative(array, sizeof(T)));
+    }
+
+    /// <summary>
     /// Create a non-generic version of <see cref="PtrMut{T}"/>
     /// </summary>
     /// <param name="ptr"></param>
-    public static implicit operator PtrMut(PtrMut<T> ptr) => new PtrMut(ref ptr.InteriorRef);
+    public static implicit operator PtrMut(PtrMut<T> ptr) => new PtrMut(in ptr.InteriorRef);
 }

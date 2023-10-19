@@ -4,7 +4,7 @@ namespace PointerGenerator
 {
     public static class Generator
     {
-        const bool OUTERMOST_ON_RIGHT = true;
+        const bool OUTERMOST_ON_RIGHT = false;
 
         public enum PointerType : byte
         {
@@ -692,7 +692,7 @@ public unsafe readonly ref struct {{fullName}} {{whereClause}}
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="InteriorRef">The underlying ref.</param>
-    private {{name}}(ref {{rOField}}byte @InteriorRef)
+    internal {{name}}(ref {{rOField}}byte @InteriorRef)
     {
         this.InteriorRef = ref @InteriorRef; 
     }
