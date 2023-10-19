@@ -9,14 +9,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using InlineIL;
 
 namespace Silk.NET.Core;
 
 /// <summary>
-/// A pointer wrapper class
+/// A single dimension pointer wrapper
 /// </summary>
-public unsafe readonly ref struct Mut<T> 
+public readonly ref struct Mut<T>
 	where T : unmanaged
 {
     /// <summary>
@@ -25,56 +24,13 @@ public unsafe readonly ref struct Mut<T>
     /// <param name="Ref">The underlying ref.</param>
     public Mut(ref T @Ref)
     {
-        IL.Emit.Ldarg_0();
-        IL.Emit.Ldarg_1();
-        IL.Emit.Stfld(
-            FieldRef.Field(
-                TypeRef.Type(typeof(Mut<>).MakeGenericType(typeof(T))),
-                nameof(InteriorRef)
-            )
-        );
-        IL.Emit.Ret();
-        throw IL.Unreachable();
+        this.Ref = ref @Ref;
     }
 
     /// <summary>
-    /// Creates a pointer with the given underlying ref.
+    /// The underlying reference.
     /// </summary>
-    /// <param name="InteriorRef">The underlying ref.</param>
-    public Mut(ref byte @InteriorRef)
-    {
-        this.InteriorRef = ref @InteriorRef; 
-    }
-
-    /// <summary>
-    /// The underlying reference
-    /// </summary>
-    public readonly ref T Ref
-    {
-        [MethodImpl(
-            MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
-        )]
-        get
-        {
-            // Would use the delegate* trick but this isn't optimised in JIT yet or necessarily safe
-            IL.Emit.Ldarg_0();
-            IL.Emit.Ldfld(
-            FieldRef.Field(
-                    TypeRef.Type(typeof(Mut<>).MakeGenericType(typeof(T))),
-                                    nameof(InteriorRef)
-                                )
-                            );
-            IL.Emit.Ret();
-            throw IL.Unreachable();
-        }
-    }
-
-    /// <summary>
-    /// The underlying generic reference
-    /// </summary>
-    public readonly ref readonly byte GetInteriorRef() => ref InteriorRef;
-
-    private readonly ref byte InteriorRef;
+    public readonly ref T Ref;
 
     /// <summary>
     /// Gets the item at the given offset from this pointer.
@@ -85,10 +41,7 @@ public unsafe readonly ref struct Mut<T>
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
     )]
-        get
-        {
-            return ref Unsafe.Add(ref Unsafe.AsRef(in Ref), index);
-        }
+        get => ref Unsafe.Add(ref Ref, index);
     }
 
     /// <summary>
@@ -98,22 +51,18 @@ public unsafe readonly ref struct Mut<T>
     /// <remarks>
     /// This function allows a <see cref="Mut{T}"/> to be used in a <c>fixed</c> statement.
     /// </remarks>
-    public ref T GetPinnableReference()
-    {
-        IL.Emit.Ldarg_0();
-        IL.Emit.Ldfld(
-            FieldRef.Field(
-                TypeRef.Type(typeof(Mut<>).MakeGenericType(typeof(T))),
-                nameof(InteriorRef)
-            )
-        );
-        IL.Emit.Ret();
-        throw IL.Unreachable();
-    }
+    public ref T GetPinnableReference() => ref Ref;
+
+    /// <summary>
+    /// Creates a span with the given length from this pointer.
+    /// </summary>
+    /// <param name="length">the span length</param>
+    /// <returns>the span</returns>
+    public Span<T> AsSpan(int length) => MemoryMarshal.CreateSpan(ref Ref, length);
 
     /// <summary>
     /// Determines if this <see cref="Mut{T}"/> equals another object
-    /// Always returns false as ref structs cannot be passed in, so it will never be true
+    /// Always returns false as ref structs cannot be passed in, meaning this will never be true
     /// </summary>
     /// <param name="obj"></param>
     /// <returns>Whether this object is the same as </returns>
@@ -122,7 +71,7 @@ public unsafe readonly ref struct Mut<T>
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public override int GetHashCode() => InteriorRef.GetHashCode();
+    public override int GetHashCode() => Ref.GetHashCode();
 
     /// <summary>
     /// Determines if two <see cref="Mut{T}"/> objects are equivalent
@@ -131,7 +80,7 @@ public unsafe readonly ref struct Mut<T>
     /// <param name="rh"></param>
     /// <returns>Whether the pointers are equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator ==(Mut<T> lh, Mut<T> rh) => (void*)lh == (void*)rh;
+    public unsafe static bool operator ==(Mut<T> lh, Mut<T> rh) => (void*)lh == (void*)rh;
 
     /// <summary>
     /// Determines if two <see cref="Mut{T}"/> objects are not equivalent
@@ -140,7 +89,7 @@ public unsafe readonly ref struct Mut<T>
     /// <param name="rh"></param>
     /// <returns>Whether the pointers are not equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator !=(Mut<T> lh, Mut<T> rh) => (void*)lh != (void*)rh;
+    public unsafe static bool operator !=(Mut<T> lh, Mut<T> rh) => (void*)lh != (void*)rh;
 
     /// <summary>
     /// Creates a <see cref="Mut{T}"/> from a Nullptr
@@ -186,40 +135,6 @@ public unsafe readonly ref struct Mut<T>
     public static bool operator !=(NullPtr lh, Mut<T> rh) => (Mut<T>)lh != rh;
 
     /// <summary>
-    /// Creates a <see cref="Mut{T}"/> from a void pointer
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Mut<T>(void* ptr) => new(ref Unsafe.AsRef<byte>(ptr));
-
-    /// <summary>
-    /// Creates a void pointer from a <see cref="Mut{T}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator void*(Mut<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
-
-    /// <summary>
-    /// Creates a <see cref="Mut{T}"/> from a pointer
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Mut<T>(T* ptr) => new(ref Unsafe.AsRef<byte>(ptr));
-
-    /// <summary>
-    /// Creates a pointer from a <see cref="Mut{T}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator T*(Mut<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
-        /// <summary>
-    /// Creates a span with the given length from this pointer.
-    /// </summary>
-    /// <param name="length">the span length</param>
-    /// <returns>the span</returns>
-    public Span<T> AsSpan(int length) => MemoryMarshal.CreateSpan(ref Unsafe.AsRef<T>(Unsafe.AsPointer(ref Unsafe.AsRef(in InteriorRef))), length);
-
-    /// <summary>
     /// Creates a <see cref="Mut{T}"/> from a span
     /// </summary>
     /// <param name="span"></param>
@@ -227,11 +142,60 @@ public unsafe readonly ref struct Mut<T>
     public static implicit operator Mut<T>(Span<T> span) => new(ref span.GetPinnableReference());
 
     /// <summary>
+    /// Creates a <see cref="Mut{T}"/> from a byte pointer
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static implicit operator Mut<T>(T* ptr) => new(ref Unsafe.AsRef<T>(ptr));
+
+    /// <summary>
+    /// Creates a <see cref="Mut{T}"/> from a void pointer
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static implicit operator Mut<T>(void* ptr) => new(ref Unsafe.AsRef<T>(ptr));
+
+    /// <summary>
+    /// Creates a byte pointer from a <see cref="Mut{T}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static explicit operator T*(Mut<T> ptr) => (T*)Unsafe.AsPointer(ref ptr.Ref);
+
+    /// <summary>
+    /// Creates a void pointer from a <see cref="Mut{T}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static explicit operator void*(Mut<T> ptr) => Unsafe.AsPointer(ref ptr.Ref);
+
+    /// <summary>
+    /// creates a <see cref="Mut{T}"/> from an array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Mut<T>(T[] array) => array.AsSpan();
+
+    /// <summary>
+    /// creates a <see cref="Mut{T}"/> from a 2D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Mut<T>(T[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
+
+    /// <summary>
+    /// creates a <see cref="Mut{T}"/> from a 3D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Mut<T>(T[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
+
+    /// <summary>
     /// Creates a string from a <see cref="Mut{T}"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator string(Mut<T>ptr)
+    public unsafe static explicit operator string(Mut<T> ptr)
     {
         if (typeof(T) == typeof(char) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort))
         {
@@ -269,29 +233,8 @@ public unsafe readonly ref struct Mut<T>
     }
 
     /// <summary>
-    /// creates a <see cref="Mut{T}"/> from an array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Mut<T>(T[] array) => array.AsSpan();
-
-    /// <summary>
-    /// creates a <see cref="Mut{T}"/> from a 2D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Mut<T>(T[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
-
-    /// <summary>
-    /// creates a <see cref="Mut{T}"/> from a 3D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Mut<T>(T[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
-
-    /// <summary>
     /// Create a non-generic version of <see cref="Mut{T}"/>
     /// </summary>
     /// <param name="ptr"></param>
-    public static implicit operator Mut(Mut<T> ptr) => new Mut(ref ptr.InteriorRef);
+    public static implicit operator Mut(Mut<T> ptr) => new Mut<T>(ref ptr.Ref);
 }

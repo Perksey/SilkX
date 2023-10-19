@@ -42,28 +42,32 @@ namespace PointerGenerator
                 return;
 
             string text, name;
-            if (typeChain.Length == 1)
-            {
-                text = GenerateSingleDimensionPointerType(out name, typeChain[0]);
-                File.WriteAllText(Path.Combine(outputDir, name + ".gen.cs"), text);
-            }
-            else
-            {
-                text = GenerateILWeavedPointerType(out name, false, typeChain);
-                File.WriteAllText(Path.Combine(outputDir, name + ".gen.cs"), text);
-            }
 
-            text = GenerateILWeavedPointerType(out name, true, typeChain);
+            text = GeneratePointerType(out name, false, typeChain);
+            File.WriteAllText(Path.Combine(outputDir, name + ".gen.cs"), text);
+            text = GeneratePointerType(out name, true, typeChain);
             File.WriteAllText(Path.Combine(outputDir, name + ".generic.gen.cs"), text);
         }
 
-        private static string GenerateSingleDimensionPointerType(out string name, PointerType pointerType)
+        private static string GenerateSingleDimensionPointerType(out string name, bool generic, PointerType pointerType)
         {
             name = pointerType.ToString();
+            string fullName = name;
+            string fullCommentName = name;
+            string arrayType = "byte";
             string rOField = pointerType == PointerType.Ptr ? "readonly " : string.Empty;
+            string rOInRef = pointerType == PointerType.Ptr ? "in" : "ref";
             string getRef = pointerType == PointerType.Ptr ? "ref Unsafe.AsRef(in Ref)" : "ref Ref";
             string getObjectRef = pointerType == PointerType.Ptr ? "ref Unsafe.AsRef(in ptr.Ref)" : "ref ptr.Ref";
             string spanType = pointerType == PointerType.Ptr ? "ReadOnlySpan" : "Span";
+            string WhereClause = string.Empty;
+            if (generic)
+            {
+                fullName += "<T>";
+                fullCommentName += "{T}";
+                arrayType = "T";
+                WhereClause = "\n\twhere T : unmanaged";
+            }
             return
 $$"""
 // Licensed to the .NET Foundation under one or more agreements.
@@ -83,13 +87,13 @@ namespace Silk.NET.Core;
 /// <summary>
 /// A single dimension pointer wrapper
 /// </summary>
-public readonly ref struct {{name}}
+public readonly ref struct {{fullName}}{{WhereClause}}
 {
     /// <summary>
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="Ref">The underlying ref.</param>
-    public {{name}}(ref {{rOField}}byte @Ref)
+    public {{name}}(ref {{rOField}}{{arrayType}} @Ref)
     {
         this.Ref = ref @Ref;
     }
@@ -97,13 +101,13 @@ public readonly ref struct {{name}}
     /// <summary>
     /// The underlying reference.
     /// </summary>
-    public readonly ref {{rOField}}byte Ref;
+    public readonly ref {{rOField}}{{arrayType}} Ref;
 
     /// <summary>
     /// Gets the item at the given offset from this pointer.
     /// </summary>
     /// <param name="index">The index.</param>
-    public ref {{rOField}}byte this[nuint index]
+    public ref {{rOField}}{{arrayType}} this[nuint index]
     {
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -112,41 +116,23 @@ public readonly ref struct {{name}}
     }
 
     /// <summary>
-    /// Creates a string from this <see cref="{{name}}"/> as a c-style string
-    /// </summary>
-    /// <returns>the string</returns>
-    public unsafe string ReadToString()
-    {
-        return Encoding.UTF8.GetString(
-            MemoryMarshal.CreateReadOnlySpanFromNullTerminated(
-                (byte*)Unsafe.AsPointer({{getRef}})));
-    }
-
-    /// <summary>
-    /// Creates a string from this <see cref="{{name}}"/> with the given length
-    /// </summary>
-    /// <param name="length">length of the string</param>
-    /// <returns>the string</returns>
-    public unsafe string ReadToString(int length) => Encoding.UTF8.GetString(AsSpan(length));
-
-    /// <summary>
     /// Gets the underlying reference.
     /// </summary>
     /// <returns>The underlying reference.</returns>
     /// <remarks>
-    /// This function allows a <see cref="{{name}}"/> to be used in a <c>fixed</c> statement.
+    /// This function allows a <see cref="{{fullCommentName}}"/> to be used in a <c>fixed</c> statement.
     /// </remarks>
-    public ref {{rOField}}byte GetPinnableReference() => ref Ref;
+    public ref {{rOField}}{{arrayType}} GetPinnableReference() => ref Ref;
 
     /// <summary>
     /// Creates a span with the given length from this pointer.
     /// </summary>
     /// <param name="length">the span length</param>
     /// <returns>the span</returns>
-    public {{spanType}}<byte> AsSpan(int length) => MemoryMarshal.Create{{spanType}}({{getRef}}, length);
+    public {{spanType}}<{{arrayType}}> AsSpan(int length) => MemoryMarshal.Create{{spanType}}({{getRef}}, length);
 
     /// <summary>
-    /// Determines if this <see cref="{{name}}"/> equals another object
+    /// Determines if this <see cref="{{fullCommentName}}"/> equals another object
     /// Always returns false as ref structs cannot be passed in, meaning this will never be true
     /// </summary>
     /// <param name="obj"></param>
@@ -159,149 +145,264 @@ public readonly ref struct {{name}}
     public override int GetHashCode() => Ref.GetHashCode();
 
     /// <summary>
-    /// Determines if two <see cref="{{name}}"/> objects are equivalent
+    /// Determines if two <see cref="{{fullCommentName}}"/> objects are equivalent
     /// </summary>
     /// <param name="lh"></param>
     /// <param name="rh"></param>
     /// <returns>Whether the pointers are equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static bool operator ==({{name}} lh, {{name}} rh) => (void*)lh == (void*)rh;
+    public unsafe static bool operator ==({{fullName}} lh, {{fullName}} rh) => (void*)lh == (void*)rh;
 
     /// <summary>
-    /// Determines if two <see cref="{{name}}"/> objects are not equivalent
+    /// Determines if two <see cref="{{fullCommentName}}"/> objects are not equivalent
     /// </summary>
     /// <param name="lh"></param>
     /// <param name="rh"></param>
     /// <returns>Whether the pointers are not equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static bool operator !=({{name}} lh, {{name}} rh) => (void*)lh != (void*)rh;
+    public unsafe static bool operator !=({{fullName}} lh, {{fullName}} rh) => (void*)lh != (void*)rh;
 
     /// <summary>
-    /// Creates a <see cref="{{name}}"/> from a Nullptr
+    /// Creates a <see cref="{{fullCommentName}}"/> from a Nullptr
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator {{name}}(NullPtr ptr) => (void*)ptr;
+    public unsafe static implicit operator {{fullName}}(NullPtr ptr) => (void*)ptr;
 
     /// <summary>
-    /// Determines whether a <see cref="{{name}}"/> and a NullPtr are equal
+    /// Determines whether a <see cref="{{fullCommentName}}"/> and a NullPtr are equal
     /// </summary>
     /// <param name="lh"></param>
     /// <param name="rh"></param>
-    /// <returns>Whether the <see cref="{{name}}"/> and NullPtr are equal</returns>
+    /// <returns>Whether the <see cref="{{fullCommentName}}"/> and NullPtr are equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator ==({{name}} lh, NullPtr rh) => lh == ({{name}})rh;
+    public static bool operator ==({{fullName}} lh, NullPtr rh) => lh == ({{fullName}})rh;
 
     /// <summary>
-    /// Determines whether a <see cref="{{name}}"/> and a NullPtr are not equal
+    /// Determines whether a <see cref="{{fullCommentName}}"/> and a NullPtr are not equal
     /// </summary>
     /// <param name="lh"></param>
     /// <param name="rh"></param>
-    /// <returns>Whether the <see cref="{{name}}"/> and NullPtr are not equal</returns>
+    /// <returns>Whether the <see cref="{{fullCommentName}}"/> and NullPtr are not equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator !=({{name}} lh, NullPtr rh) => lh != ({{name}})rh;
+    public static bool operator !=({{fullName}} lh, NullPtr rh) => lh != ({{fullName}})rh;
 
     /// <summary>
-    /// Determines whether a NullPtr and a <see cref="{{name}}"/> are equal
+    /// Determines whether a NullPtr and a <see cref="{{fullCommentName}}"/> are equal
     /// </summary>
     /// <param name="lh"></param>
     /// <param name="rh"></param>
-    /// <returns>Whether the NullPtr and <see cref="{{name}}"/> are equal</returns>
+    /// <returns>Whether the NullPtr and <see cref="{{fullCommentName}}"/> are equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator ==(NullPtr lh, {{name}} rh) => ({{name}})lh == rh;
+    public static bool operator ==(NullPtr lh, {{fullName}} rh) => ({{fullName}})lh == rh;
 
     /// <summary>
-    /// Determines whether a NullPtr and a <see cref="{{name}}"/> are not equal
+    /// Determines whether a NullPtr and a <see cref="{{fullCommentName}}"/> are not equal
     /// </summary>
     /// <param name="lh"></param>
     /// <param name="rh"></param>
-    /// <returns>Whether the NullPtr and <see cref="{{name}}"/> are not equal</returns>
+    /// <returns>Whether the NullPtr and <see cref="{{fullCommentName}}"/> are not equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator !=(NullPtr lh, {{name}} rh) => ({{name}})lh != rh;
+    public static bool operator !=(NullPtr lh, {{fullName}} rh) => ({{fullName}})lh != rh;
 
     /// <summary>
-    /// Creates a <see cref="{{name}}"/> from a span
+    /// Creates a <see cref="{{fullCommentName}}"/> from a span
     /// </summary>
     /// <param name="span"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{name}}(Span<byte> span) => new(ref span.GetPinnableReference());
+    public static implicit operator {{fullName}}(Span<{{arrayType}}> span) => new(ref span.GetPinnableReference());
 
     /// <summary>
-    /// Creates a <see cref="{{name}}"/> from a byte pointer
+    /// Creates a <see cref="{{fullCommentName}}"/> from a byte pointer
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator {{name}}(byte* ptr) => new(ref Unsafe.AsRef<byte>(ptr));
+    public unsafe static implicit operator {{fullName}}({{arrayType}}* ptr) => new(ref Unsafe.AsRef<{{arrayType}}>(ptr));
 
     /// <summary>
-    /// Creates a <see cref="{{name}}"/> from a void pointer
+    /// Creates a <see cref="{{fullCommentName}}"/> from a void pointer
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static implicit operator {{name}}(void* ptr) => new(ref Unsafe.AsRef<byte>(ptr));
+    public unsafe static implicit operator {{fullName}}(void* ptr) => new(ref Unsafe.AsRef<{{arrayType}}>(ptr));
 
     /// <summary>
-    /// Creates a byte pointer from a <see cref="{{name}}"/>
+    /// Creates a byte pointer from a <see cref="{{fullCommentName}}"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static explicit operator byte*({{name}} ptr) => (byte*)Unsafe.AsPointer({{getObjectRef}});
+    public unsafe static explicit operator {{arrayType}}*({{fullName}} ptr) => ({{arrayType}}*)Unsafe.AsPointer({{getObjectRef}});
 
     /// <summary>
-    /// Creates a void pointer from a <see cref="{{name}}"/>
+    /// Creates a void pointer from a <see cref="{{fullCommentName}}"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public unsafe static explicit operator void*({{name}} ptr) => Unsafe.AsPointer({{getObjectRef}});
+    public unsafe static explicit operator void*({{fullName}} ptr) => Unsafe.AsPointer({{getObjectRef}});
 
     /// <summary>
-    /// Creates a string from a <see cref="{{name}}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator string({{name}} ptr) => ptr.ReadToString();
-
-    /// <summary>
-    /// creates a <see cref="{{name}}"/> from an array
+    /// creates a <see cref="{{fullCommentName}}"/> from an array
     /// </summary>
     /// <param name="array"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{name}}(byte[] array) => array.AsSpan();
+    public static implicit operator {{fullName}}({{arrayType}}[] array) => array.AsSpan();
 
     /// <summary>
-    /// creates a <see cref="{{name}}"/> from a 2D array
+    /// creates a <see cref="{{fullCommentName}}"/> from a 2D array
     /// </summary>
     /// <param name="array"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{name}}(byte[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
+    public static implicit operator {{fullName}}({{arrayType}}[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
 
     /// <summary>
-    /// creates a <see cref="{{name}}"/> from a 3D array
+    /// creates a <see cref="{{fullCommentName}}"/> from a 3D array
     /// </summary>
     /// <param name="array"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{name}}(byte[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
-"""+ (pointerType == PointerType.Mut ? "\n}" :
+    public static implicit operator {{fullName}}({{arrayType}}[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
+""" + (generic ? $$"""
+
+
+    /// <summary>
+    /// Creates a string from a <see cref="{{fullCommentName}}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static explicit operator string({{fullName}} ptr)
+    {
+        if (typeof(T) == typeof(char) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort))
+        {
+            fixed (void* raw = ptr)
+            {
+                return new string((char*)raw);
+            }
+        }
+
+        if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
+        {
+            fixed (void* raw = ptr)
+            {
+                return Encoding.UTF8.GetString(
+                    MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)raw)
+                );
+            }
+        }
+
+        if (typeof(T) == typeof(int) || typeof(T) == typeof(uint))
+        {
+            fixed (void* raw = ptr)
+            {
+                int words;
+                for (words = 0; ((uint*)raw)[words] != 0; words++)
+                {
+                    // do nothing
+                }
+
+                return Encoding.UTF32.GetString((byte*)raw, words * 4);
+            }
+        }
+
+        throw new InvalidCastException();
+    }
+
+    /// <summary>
+    /// Create a non-generic version of <see cref="Mut{T}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    public static implicit operator {{name}}({{fullName}} ptr) => new {{fullName}}({{rOInRef}} ptr.Ref);
+""" :
 $$"""
 
 
     /// <summary>
-    /// Creates a <see cref="{{name}}"/> from a ReadOnlySpan
+    /// Creates a string from this <see cref="{{fullCommentName}}"/> with the given length
+    /// </summary>
+    /// <param name="length">length of the string</param>
+    /// <returns>the string</returns>
+    public unsafe string ReadToString(int length) => Encoding.UTF8.GetString(AsSpan(length));
+
+    /// <summary>
+    /// Creates a string from this <see cref="{{fullCommentName}}"/> as a c-style string
+    /// </summary>
+    /// <returns>the string</returns>
+    public unsafe string ReadToString()
+    {
+        return Encoding.UTF8.GetString(
+            MemoryMarshal.CreateReadOnlySpanFromNullTerminated(
+                (byte*)Unsafe.AsPointer({{getRef}})));
+    }
+
+    /// <summary>
+    /// Creates a string from a <see cref="{{fullCommentName}}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static explicit operator string({{fullName}} ptr) => ptr.ReadToString();
+""")
+    + (pointerType == PointerType.Mut ? "\n}" : (generic ?
+$$"""
+
+
+    /// <summary>
+    /// Creates a <see cref="{{fullCommentName}}"/> from a ReadOnlySpan
     /// </summary>
     /// <param name="span"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{name}}(ReadOnlySpan<byte> span) => new(in span.GetPinnableReference());
-}
-""");
+    public static implicit operator {{fullName}}(ReadOnlySpan<{{arrayType}}> span) => new(in span.GetPinnableReference());
+
+    /// <summary>
+    /// creates a <see cref="{{fullCommentName}}"/> from a string
+    /// </summary>
+    /// <param name="str"></param>
+    public static implicit operator {{fullName}}(string str)
+    {
+        if (typeof({{arrayType}}) == typeof(char) || typeof({{arrayType}}) == typeof(ushort) || typeof({{arrayType}}) == typeof(short))
+        {
+            return new {{fullName}}(
+                ref Unsafe.As<char, T>(ref Unsafe.AsRef(in str.GetPinnableReference()))
+            );
         }
 
-        private static string GenerateILWeavedPointerType(out string name, bool generic, params PointerType[] types)
+        if (typeof({{arrayType}}) == typeof(byte) || typeof({{arrayType}}) == typeof(sbyte))
+        {
+            return new {{fullName}}(
+                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str)))
+            );
+        }
+
+        if (typeof({{arrayType}}) == typeof(uint) || typeof({{arrayType}}) == typeof(int))
+        {
+            return new {{fullName}}(
+                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str, 4)))
+            );
+        }
+
+        static void Throw() => throw new InvalidCastException();
+        Throw();
+        return default;
+    }
+}
+""" :
+$$"""
+
+
+    /// <summary>
+    /// Creates a <see cref="{{fullCommentName}}"/> from a ReadOnlySpan
+    /// </summary>
+    /// <param name="span"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator {{fullName}}(ReadOnlySpan<{{arrayType}}> span) => new(in span.GetPinnableReference());
+}
+"""));
+        }
+
+        private static string GeneratePointerType(out string name, bool generic, params PointerType[] types)
         {
             name = string.Empty;
             if (types.Length == 0)
                 return string.Empty;
-            if (types.Length == 1 && !generic)
-                return GenerateSingleDimensionPointerType(out name, types[0]);
+            if (types.Length == 1)
+                return GenerateSingleDimensionPointerType(out name, generic, types[0]);
 
             bool outerMutability = OUTERMOST_ON_RIGHT ? types.Last() == PointerType.Mut : types[0] == PointerType.Mut;
             bool innerMutability = OUTERMOST_ON_RIGHT ? types[0] == PointerType.Mut : types.Last() == PointerType.Mut;
@@ -385,30 +486,28 @@ IL.Emit.Ldarg_0();
 
             string ptrChars = "*";
             string pinRefptr = string.Empty;
-            if (types.Length > 1)
+            ptrChars = string.Empty;
+            string arrayChars = string.Empty;
+            string lengthParams = string.Empty;
+            string lengthComments = string.Empty;
+            string stringArraySpecChars = string.Empty;
+
+            for (int i = 0; i < types.Length; i++)
             {
-                ptrChars = string.Empty;
-                string arrayChars = string.Empty;
-                string lengthParams = string.Empty;
-                string lengthComments = string.Empty;
-                string stringArraySpecChars = string.Empty;
+                ptrChars += "*";
+                arrayChars += "[]";
 
-                for (int i = 0; i < types.Length; i++)
+                if (i < types.Length - 1)
                 {
-                    ptrChars += "*";
-                    arrayChars += "[]";
-
-                    if (i < types.Length - 1)
-                    {
-                        stringArraySpecChars += "[]?";
-                        lengthParams += $"int length{i}, ";
-                        lengthComments += $"\t/// <param name=\"length{i}\">The number of strings contained in the {i}-level of the string array.</param>\n";
-                    }
+                    stringArraySpecChars += "[]?";
+                    lengthParams += $"int length{i}, ";
+                    lengthComments += $"\t/// <param name=\"length{i}\">The number of strings contained in the {i}-level of the string array.</param>\n";
                 }
-                string stringArrayChars = arrayChars.Remove(arrayChars.Length - 4);
-                lengthParams = lengthParams.Remove(lengthParams.Length - 2);
-                pinRefptr = ptrChars.Remove(ptrChars.Length - 1);
-                arrayConversions =
+            }
+            string stringArrayChars = arrayChars.Remove(arrayChars.Length - 4);
+            lengthParams = lengthParams.Remove(lengthParams.Length - 2);
+            pinRefptr = ptrChars.Remove(ptrChars.Length - 1);
+            arrayConversions =
 $$"""
 
     /// <summary>
@@ -548,129 +647,6 @@ $$"""
         return new {{fullName}}(ref SilkMarshal.StringArrayToNative(array, sizeof(byte)));
     }
 """));
-            }
-            else
-            {
-                arrayConversions =
-$$"""
-    /// <summary>
-    /// Creates a span with the given length from this pointer.
-    /// </summary>
-    /// <param name="length">the span length</param>
-    /// <returns>the span</returns>
-    public {{spanType}}<{{upperType}}> AsSpan(int length) => MemoryMarshal.Create{{spanType}}(ref Unsafe.AsRef<T>(Unsafe.AsPointer(ref Unsafe.AsRef(in InteriorRef))), length);
-
-    /// <summary>
-    /// Creates a <see cref="{{fullCommentName}}"/> from a span
-    /// </summary>
-    /// <param name="span"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}(Span<{{upperType}}> span) => new(ref span.GetPinnableReference());
-
-    /// <summary>
-    /// Creates a string from a <see cref="{{fullCommentName}}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator string({{fullName}}ptr)
-    {
-        if (typeof({{arrayType}}) == typeof(char) || typeof({{arrayType}}) == typeof(short) || typeof({{arrayType}}) == typeof(ushort))
-        {
-            fixed (void* raw = ptr)
-            {
-                return new string((char*)raw);
-            }
-        }
-
-        if (typeof({{arrayType}}) == typeof(byte) || typeof({{arrayType}}) == typeof(sbyte))
-        {
-            fixed (void* raw = ptr)
-            {
-                return Encoding.UTF8.GetString(
-                    MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)raw)
-                );
-            }
-        }
-
-        if (typeof({{arrayType}}) == typeof(int) || typeof({{arrayType}}) == typeof(uint))
-        {
-            fixed (void* raw = ptr)
-            {
-                int words;
-                for (words = 0; ((uint*)raw)[words] != 0; words++)
-                {
-                    // do nothing
-                }
-
-                return Encoding.UTF32.GetString((byte*)raw, words * 4);
-            }
-        }
-
-        throw new InvalidCastException();
-    }
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from an array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}({{arrayType}}[] array) => array.AsSpan();
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from a 2D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}({{arrayType}}[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from a 3D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}({{arrayType}}[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
-""" + (outerMutability ? "" :
-$$"""
-    /// <summary>
-    /// Creates a <see cref="{{fullCommentName}}"/> from a ReadOnlySpan
-    /// </summary>
-    /// <param name="span"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator {{fullName}}(ReadOnlySpan<{{upperType}}> span) => new(in span.GetPinnableReference());
-
-    /// <summary>
-    /// creates a <see cref="{{fullCommentName}}"/> from a string
-    /// </summary>
-    /// <param name="str"></param>
-    public static implicit operator {{fullName}}(string str)
-    {
-        if (typeof({{arrayType}}) == typeof(char) || typeof({{arrayType}}) == typeof(ushort) || typeof({{arrayType}}) == typeof(short))
-        {
-            return new {{fullName}}(
-                ref Unsafe.As<char, T>(ref Unsafe.AsRef(in str.GetPinnableReference()))
-            );
-        }
-
-        if (typeof({{arrayType}}) == typeof(byte) || typeof({{arrayType}}) == typeof(sbyte))
-        {
-            return new {{fullName}}(
-                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str)))
-            );
-        }
-
-        if (typeof({{arrayType}}) == typeof(uint) || typeof({{arrayType}}) == typeof(int))
-        {
-            return new {{fullName}}(
-                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str, 4)))
-            );
-        }
-
-        static void Throw() => throw new InvalidCastException();
-        Throw();
-        return default;
-    }
-""");
-            }
 
             return
 $$"""
@@ -716,7 +692,7 @@ public unsafe readonly ref struct {{fullName}} {{whereClause}}
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="InteriorRef">The underlying ref.</param>
-    public {{name}}(ref {{rOField}}byte @InteriorRef)
+    private {{name}}(ref {{rOField}}byte @InteriorRef)
     {
         this.InteriorRef = ref @InteriorRef; 
     }
@@ -888,7 +864,7 @@ public unsafe readonly ref struct {{fullName}} {{whereClause}}
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static explicit operator {{arrayType}}{{ptrChars}}({{fullName}} ptr) => ({{arrayType}}{{ptrChars}})Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
     {{arrayConversions}}
-""" + (generic ? 
+""" + (generic ?
 $$"""
 
 

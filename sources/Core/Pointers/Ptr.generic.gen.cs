@@ -9,14 +9,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using InlineIL;
 
 namespace Silk.NET.Core;
 
 /// <summary>
-/// A pointer wrapper class
+/// A single dimension pointer wrapper
 /// </summary>
-public unsafe readonly ref struct Ptr<T> 
+public readonly ref struct Ptr<T>
 	where T : unmanaged
 {
     /// <summary>
@@ -25,56 +24,13 @@ public unsafe readonly ref struct Ptr<T>
     /// <param name="Ref">The underlying ref.</param>
     public Ptr(ref readonly T @Ref)
     {
-        IL.Emit.Ldarg_0();
-        IL.Emit.Ldarg_1();
-        IL.Emit.Stfld(
-            FieldRef.Field(
-                TypeRef.Type(typeof(Ptr<>).MakeGenericType(typeof(T))),
-                nameof(InteriorRef)
-            )
-        );
-        IL.Emit.Ret();
-        throw IL.Unreachable();
+        this.Ref = ref @Ref;
     }
 
     /// <summary>
-    /// Creates a pointer with the given underlying ref.
+    /// The underlying reference.
     /// </summary>
-    /// <param name="InteriorRef">The underlying ref.</param>
-    public Ptr(ref readonly byte @InteriorRef)
-    {
-        this.InteriorRef = ref @InteriorRef; 
-    }
-
-    /// <summary>
-    /// The underlying reference
-    /// </summary>
-    public readonly ref readonly T Ref
-    {
-        [MethodImpl(
-            MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
-        )]
-        get
-        {
-            // Would use the delegate* trick but this isn't optimised in JIT yet or necessarily safe
-            IL.Emit.Ldarg_0();
-            IL.Emit.Ldfld(
-            FieldRef.Field(
-                    TypeRef.Type(typeof(Ptr<>).MakeGenericType(typeof(T))),
-                                    nameof(InteriorRef)
-                                )
-                            );
-            IL.Emit.Ret();
-            throw IL.Unreachable();
-        }
-    }
-
-    /// <summary>
-    /// The underlying generic reference
-    /// </summary>
-    public readonly ref readonly byte GetInteriorRef() => ref InteriorRef;
-
-    private readonly ref readonly byte InteriorRef;
+    public readonly ref readonly T Ref;
 
     /// <summary>
     /// Gets the item at the given offset from this pointer.
@@ -85,10 +41,7 @@ public unsafe readonly ref struct Ptr<T>
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
     )]
-        get
-        {
-            return ref Unsafe.Add(ref Unsafe.AsRef(in Ref), index);
-        }
+        get => ref Unsafe.Add(ref Unsafe.AsRef(in Ref), index);
     }
 
     /// <summary>
@@ -98,22 +51,18 @@ public unsafe readonly ref struct Ptr<T>
     /// <remarks>
     /// This function allows a <see cref="Ptr{T}"/> to be used in a <c>fixed</c> statement.
     /// </remarks>
-    public ref readonly T GetPinnableReference()
-    {
-        IL.Emit.Ldarg_0();
-        IL.Emit.Ldfld(
-            FieldRef.Field(
-                TypeRef.Type(typeof(Ptr<>).MakeGenericType(typeof(T))),
-                nameof(InteriorRef)
-            )
-        );
-        IL.Emit.Ret();
-        throw IL.Unreachable();
-    }
+    public ref readonly T GetPinnableReference() => ref Ref;
+
+    /// <summary>
+    /// Creates a span with the given length from this pointer.
+    /// </summary>
+    /// <param name="length">the span length</param>
+    /// <returns>the span</returns>
+    public ReadOnlySpan<T> AsSpan(int length) => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Ref), length);
 
     /// <summary>
     /// Determines if this <see cref="Ptr{T}"/> equals another object
-    /// Always returns false as ref structs cannot be passed in, so it will never be true
+    /// Always returns false as ref structs cannot be passed in, meaning this will never be true
     /// </summary>
     /// <param name="obj"></param>
     /// <returns>Whether this object is the same as </returns>
@@ -122,7 +71,7 @@ public unsafe readonly ref struct Ptr<T>
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public override int GetHashCode() => InteriorRef.GetHashCode();
+    public override int GetHashCode() => Ref.GetHashCode();
 
     /// <summary>
     /// Determines if two <see cref="Ptr{T}"/> objects are equivalent
@@ -131,7 +80,7 @@ public unsafe readonly ref struct Ptr<T>
     /// <param name="rh"></param>
     /// <returns>Whether the pointers are equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator ==(Ptr<T> lh, Ptr<T> rh) => (void*)lh == (void*)rh;
+    public unsafe static bool operator ==(Ptr<T> lh, Ptr<T> rh) => (void*)lh == (void*)rh;
 
     /// <summary>
     /// Determines if two <see cref="Ptr{T}"/> objects are not equivalent
@@ -140,7 +89,7 @@ public unsafe readonly ref struct Ptr<T>
     /// <param name="rh"></param>
     /// <returns>Whether the pointers are not equal</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool operator !=(Ptr<T> lh, Ptr<T> rh) => (void*)lh != (void*)rh;
+    public unsafe static bool operator !=(Ptr<T> lh, Ptr<T> rh) => (void*)lh != (void*)rh;
 
     /// <summary>
     /// Creates a <see cref="Ptr{T}"/> from a Nullptr
@@ -186,40 +135,6 @@ public unsafe readonly ref struct Ptr<T>
     public static bool operator !=(NullPtr lh, Ptr<T> rh) => (Ptr<T>)lh != rh;
 
     /// <summary>
-    /// Creates a <see cref="Ptr{T}"/> from a void pointer
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(void* ptr) => new(ref Unsafe.AsRef<byte>(ptr));
-
-    /// <summary>
-    /// Creates a void pointer from a <see cref="Ptr{T}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator void*(Ptr<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
-
-    /// <summary>
-    /// Creates a <see cref="Ptr{T}"/> from a pointer
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T* ptr) => new(ref Unsafe.AsRef<byte>(ptr));
-
-    /// <summary>
-    /// Creates a pointer from a <see cref="Ptr{T}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator T*(Ptr<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.InteriorRef));
-        /// <summary>
-    /// Creates a span with the given length from this pointer.
-    /// </summary>
-    /// <param name="length">the span length</param>
-    /// <returns>the span</returns>
-    public ReadOnlySpan<T> AsSpan(int length) => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<T>(Unsafe.AsPointer(ref Unsafe.AsRef(in InteriorRef))), length);
-
-    /// <summary>
     /// Creates a <see cref="Ptr{T}"/> from a span
     /// </summary>
     /// <param name="span"></param>
@@ -227,11 +142,60 @@ public unsafe readonly ref struct Ptr<T>
     public static implicit operator Ptr<T>(Span<T> span) => new(ref span.GetPinnableReference());
 
     /// <summary>
+    /// Creates a <see cref="Ptr{T}"/> from a byte pointer
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static implicit operator Ptr<T>(T* ptr) => new(ref Unsafe.AsRef<T>(ptr));
+
+    /// <summary>
+    /// Creates a <see cref="Ptr{T}"/> from a void pointer
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static implicit operator Ptr<T>(void* ptr) => new(ref Unsafe.AsRef<T>(ptr));
+
+    /// <summary>
+    /// Creates a byte pointer from a <see cref="Ptr{T}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static explicit operator T*(Ptr<T> ptr) => (T*)Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.Ref));
+
+    /// <summary>
+    /// Creates a void pointer from a <see cref="Ptr{T}"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public unsafe static explicit operator void*(Ptr<T> ptr) => Unsafe.AsPointer(ref Unsafe.AsRef(in ptr.Ref));
+
+    /// <summary>
+    /// creates a <see cref="Ptr{T}"/> from an array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(T[] array) => array.AsSpan();
+
+    /// <summary>
+    /// creates a <see cref="Ptr{T}"/> from a 2D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(T[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
+
+    /// <summary>
+    /// creates a <see cref="Ptr{T}"/> from a 3D array
+    /// </summary>
+    /// <param name="array"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static implicit operator Ptr<T>(T[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
+
+    /// <summary>
     /// Creates a string from a <see cref="Ptr{T}"/>
     /// </summary>
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator string(Ptr<T>ptr)
+    public unsafe static explicit operator string(Ptr<T> ptr)
     {
         if (typeof(T) == typeof(char) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort))
         {
@@ -269,25 +233,12 @@ public unsafe readonly ref struct Ptr<T>
     }
 
     /// <summary>
-    /// creates a <see cref="Ptr{T}"/> from an array
+    /// Create a non-generic version of <see cref="Mut{T}"/>
     /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T[] array) => array.AsSpan();
+    /// <param name="ptr"></param>
+    public static implicit operator Ptr(Ptr<T> ptr) => new Ptr<T>(in ptr.Ref);
 
     /// <summary>
-    /// creates a <see cref="Ptr{T}"/> from a 2D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T[,] array) => MemoryMarshal.CreateSpan(ref array[0, 0], array.Length);
-
-    /// <summary>
-    /// creates a <see cref="Ptr{T}"/> from a 3D array
-    /// </summary>
-    /// <param name="array"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static implicit operator Ptr<T>(T[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);    /// <summary>
     /// Creates a <see cref="Ptr{T}"/> from a ReadOnlySpan
     /// </summary>
     /// <param name="span"></param>
@@ -325,10 +276,4 @@ public unsafe readonly ref struct Ptr<T>
         Throw();
         return default;
     }
-
-    /// <summary>
-    /// Create a non-generic version of <see cref="Ptr{T}"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    public static implicit operator Ptr(Ptr<T> ptr) => new Ptr(in ptr.InteriorRef);
 }

@@ -8,30 +8,6 @@ namespace Silk.NET.Core.UnitTests;
 public class MutTests
 {
     [Test]
-    public void SingleStringUtf8()
-    {
-        Mut<byte> thing = STR_1;
-        string thingBack = thing.ReadToString();
-        Assert.That(thingBack, Is.EqualTo(STR_1));
-    }
-
-    [Test]
-    public void SingleStringUtf16()
-    {
-        Mut<char> thing = STR_1;
-        string thingBack = thing.ReadToString();
-        Assert.That(thingBack, Is.EqualTo(STR_1));
-    }
-
-    [Test]
-    public void SingleStringUtf32()
-    {
-        Mut<uint> thing = STR_1;
-        string thingBack = thing.ReadToString();
-        Assert.That(thingBack, Is.EqualTo(STR_1));
-    }
-
-    [Test]
     public void SingleStringUtf8FromByteArray()
     {
         Mut<byte> thing = Encoding.UTF8.GetBytes(STR_1 + "\0");
@@ -101,14 +77,6 @@ public class MutTests
             Mut<uint> thing = (uint*)ptr;
             Assert.That((string)thing, Is.EqualTo(STR_1));
         }
-    }
-
-    [Test]
-    public void StringWithNonStringPointer()
-    {
-        nint dummy = 0x12345678;
-        Assert.Throws<InvalidCastException>(() => _ = (Mut<nint>)"Hello");
-        Assert.Throws<InvalidCastException>(() => _ = (string)dummy.AsPtrMut());
     }
 
     [Test]

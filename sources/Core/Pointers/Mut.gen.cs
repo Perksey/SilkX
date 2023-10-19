@@ -44,24 +44,6 @@ public readonly ref struct Mut
     }
 
     /// <summary>
-    /// Creates a string from this <see cref="Mut"/> as a c-style string
-    /// </summary>
-    /// <returns>the string</returns>
-    public unsafe string ReadToString()
-    {
-        return Encoding.UTF8.GetString(
-            MemoryMarshal.CreateReadOnlySpanFromNullTerminated(
-                (byte*)Unsafe.AsPointer(ref Ref)));
-    }
-
-    /// <summary>
-    /// Creates a string from this <see cref="Mut"/> with the given length
-    /// </summary>
-    /// <param name="length">length of the string</param>
-    /// <returns>the string</returns>
-    public unsafe string ReadToString(int length) => Encoding.UTF8.GetString(AsSpan(length));
-
-    /// <summary>
     /// Gets the underlying reference.
     /// </summary>
     /// <returns>The underlying reference.</returns>
@@ -187,13 +169,6 @@ public readonly ref struct Mut
     public unsafe static explicit operator void*(Mut ptr) => Unsafe.AsPointer(ref ptr.Ref);
 
     /// <summary>
-    /// Creates a string from a <see cref="Mut"/>
-    /// </summary>
-    /// <param name="ptr"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static explicit operator string(Mut ptr) => ptr.ReadToString();
-
-    /// <summary>
     /// creates a <see cref="Mut"/> from an array
     /// </summary>
     /// <param name="array"></param>
@@ -213,4 +188,29 @@ public readonly ref struct Mut
     /// <param name="array"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static implicit operator Mut(byte[,,] array) => MemoryMarshal.CreateSpan(ref array[0, 0, 0], array.Length);
+
+    /// <summary>
+    /// Creates a string from this <see cref="Mut"/> with the given length
+    /// </summary>
+    /// <param name="length">length of the string</param>
+    /// <returns>the string</returns>
+    public unsafe string ReadToString(int length) => Encoding.UTF8.GetString(AsSpan(length));
+
+    /// <summary>
+    /// Creates a string from this <see cref="Mut"/> as a c-style string
+    /// </summary>
+    /// <returns>the string</returns>
+    public unsafe string ReadToString()
+    {
+        return Encoding.UTF8.GetString(
+            MemoryMarshal.CreateReadOnlySpanFromNullTerminated(
+                (byte*)Unsafe.AsPointer(ref Ref)));
+    }
+
+    /// <summary>
+    /// Creates a string from a <see cref="Mut"/>
+    /// </summary>
+    /// <param name="ptr"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static explicit operator string(Mut ptr) => ptr.ReadToString();
 }

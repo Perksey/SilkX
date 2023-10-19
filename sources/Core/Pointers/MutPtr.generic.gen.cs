@@ -41,7 +41,7 @@ public unsafe readonly ref struct MutPtr<T>
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="InteriorRef">The underlying ref.</param>
-    public MutPtr(ref readonly byte @InteriorRef)
+    private MutPtr(ref readonly byte @InteriorRef)
     {
         this.InteriorRef = ref @InteriorRef; 
     }

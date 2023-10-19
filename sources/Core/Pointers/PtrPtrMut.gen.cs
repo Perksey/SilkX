@@ -40,7 +40,7 @@ public unsafe readonly ref struct PtrPtrMut
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="InteriorRef">The underlying ref.</param>
-    public PtrPtrMut(ref byte @InteriorRef)
+    private PtrPtrMut(ref byte @InteriorRef)
     {
         this.InteriorRef = ref @InteriorRef; 
     }
