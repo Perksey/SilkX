@@ -23,7 +23,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// Creates a pointer with the given underlying ref.
     /// </summary>
     /// <param name="Ref">The underlying ref.</param>
-    public PtrMut(ref readonly Ptr<T> @Ref)
+    public PtrMut(ref readonly Mut<T> @Ref)
     {
         IL.Emit.Ldarg_0();
         IL.Emit.Ldarg_1();
@@ -49,7 +49,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// <summary>
     /// The underlying reference
     /// </summary>
-    public readonly ref readonly Ptr<T> Ref
+    public readonly ref readonly Mut<T> Ref
     {
         [MethodImpl(
             MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -80,7 +80,7 @@ public unsafe readonly ref struct PtrMut<T>
     /// Gets the item at the given offset from this pointer.
     /// </summary>
     /// <param name="index">The index.</param>
-    public ref readonly Ptr<T> this[nuint index]
+    public ref readonly Mut<T> this[nuint index]
     {
         [MethodImpl(
         MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization
@@ -245,7 +245,7 @@ public unsafe readonly ref struct PtrMut<T>
         IL.Emit.Newobj(
             MethodRef.Constructor(
                 TypeRef.Type(typeof(PtrMut<>).MakeGenericType(typeof(T))),
-                TypeRef.Type(typeof(Ptr<>).MakeGenericType(typeof(T))).MakeByRefType()
+                TypeRef.Type(typeof(Mut<>).MakeGenericType(typeof(T))).MakeByRefType()
             )
         );
         IL.Emit.Ret();

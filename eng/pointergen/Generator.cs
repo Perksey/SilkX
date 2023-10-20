@@ -407,7 +407,7 @@ $$"""
             bool outerMutability = OUTERMOST_ON_RIGHT ? types.Last() == PointerType.Mut : types[0] == PointerType.Mut;
             bool innerMutability = OUTERMOST_ON_RIGHT ? types[0] == PointerType.Mut : types.Last() == PointerType.Mut;
             name = string.Join("", types);
-            string upperType = OUTERMOST_ON_RIGHT ? name.Remove(0, 3) : name.Remove(name.Length - 3);
+            string upperType = OUTERMOST_ON_RIGHT ? name.Remove(name.Length - 3) : name.Remove(0, 3);
             string fullName = name;
             string fullCommentName = name;
             string rOField = outerMutability ? string.Empty : "readonly ";
