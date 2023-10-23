@@ -200,16 +200,38 @@ public class UseSilkDSL : IMod
                                 x =>
                                     Argument(
                                         IdentifierName(
-                                            x.Type is not null && IsDSLApplicable(x.Type)
-                                                ? IdentToInnerIdent(x.Identifier)
-                                                : x.Identifier
-                                        )
+                                            x.Identifier
+                                            )
                                     )
                             )
                         )
                     )
                 );
-                body = Block(fun, hasRet ? ReturnStatement(inv) : ExpressionStatement(inv));
+
+                List<StatementSyntax> statements = new List<StatementSyntax>();
+                statements.Add(fun);
+                statements.Add(hasRet ?
+                    LocalDeclarationStatement(
+                        VariableDeclaration(
+                            node.ReturnType,
+                            SingletonSeparatedList(
+                                VariableDeclarator("ret")
+                                    .WithInitializer(
+                                        EqualsValueClause(inv)
+                                )
+                            )
+                        )
+                    )
+                    : ExpressionStatement(inv));
+
+                statements.AddRange(paramsToChange.Select<ParameterSyntax, StatementSyntax>((param) => ExpressionStatement(InvocationExpression(IdentifierName(param.Identifier + ".Dispose")))));
+
+                if (hasRet)
+                {
+                    statements.Add(ReturnStatement(IdentifierName("ret")));
+                }
+
+                body = Block(statements.ToArray());
 
                 // Remove the extern keyword from the outer method
                 methWithReplacementsButNoFixed = methWithReplacementsButNoFixed
@@ -233,31 +255,7 @@ public class UseSilkDSL : IMod
                 );
             }
 
-            // Generate the fixed blocks for the "inner idents"
             Debug.Assert(body is BlockSyntax);
-            foreach (var param in paramsToChange)
-            {
-                Debug.Assert(param.Type is not null);
-                body = FixedStatement(
-                    VariableDeclaration(
-                        param.Type,
-                        SingletonSeparatedList(
-                            VariableDeclarator(IdentToInnerIdent(param.Identifier))
-                                .WithInitializer(
-                                    EqualsValueClause(IdentifierName(param.Identifier))
-                                )
-                        )
-                    ),
-                    body
-                );
-            }
-
-            // The method body needs to be a block. Alternatively each FixedStatement could be wrapped in a Block, but
-            // that would be a lot of nested fixeds.
-            if (body is not BlockSyntax)
-            {
-                body = Block(body);
-            }
 
             // Need to check on the return type, but assume that there's an implicit conversion in the DSL
             if (_returnTypeReplaceable)
@@ -302,7 +300,7 @@ public class UseSilkDSL : IMod
                 return ret;
             }
 
-            return IdentifierName(IdentToInnerIdent(ret.Identifier)).WithTriviaFrom(ret);
+            return IdentifierName(ret.Identifier).WithTriviaFrom(ret);
         }
 
         public override SyntaxNode? VisitAttribute(AttributeSyntax node)
@@ -328,12 +326,6 @@ public class UseSilkDSL : IMod
             return ret;
         }
 
-        private static SyntaxToken IdentToInnerIdent(SyntaxToken token)
-        {
-            Debug.Assert(token.IsKind(SyntaxKind.IdentifierToken));
-            return Identifier($"__dsl_{token.ToString().TrimStart('@')}");
-        }
-
         private static SyntaxToken IdentToPInvokeIdent(SyntaxToken token)
         {
             Debug.Assert(token.IsKind(SyntaxKind.IdentifierToken));
@@ -348,27 +340,6 @@ public class UseSilkDSL : IMod
             SyntaxKind? target
         )
         {
-            var indirectionLevels = 0;
-            var isVoid = false;
-            while (syntax is PointerTypeSyntax inner)
-            {
-                indirectionLevels++;
-                syntax = inner.ElementType;
-            }
-
-            if (syntax is PredefinedTypeSyntax lang && lang.Keyword.IsKind(SyntaxKind.VoidKeyword))
-            {
-                isVoid = true;
-            }
-
-            if (indirectionLevels > 2)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(syntax),
-                    "Indirection levels greater than 2 are currently unsupported by SilkDSL."
-                );
-            }
-
             var isConst = false;
             if (attrLists is not null)
             {
@@ -401,26 +372,48 @@ public class UseSilkDSL : IMod
                 }
             }
 
-            return isVoid
-                ? IdentifierName(
-                    isConst switch
-                    {
-                        true => string.Join("", Enumerable.Repeat("Ptr", indirectionLevels)),
-                        false => string.Join("", Enumerable.Repeat("Mut", indirectionLevels)),
-                    }
-                )
-                : GenericName(
-                        Identifier(
-                            isConst switch
-                            {
-                                true
-                                    => string.Join("", Enumerable.Repeat("Ptr", indirectionLevels)),
-                                false
-                                    => string.Join("", Enumerable.Repeat("Mut", indirectionLevels)),
-                            }
-                        )
-                    )
-                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(syntax)));
+            var indirectionLevels = 0;
+            var isVoid = false;
+            while (syntax is PointerTypeSyntax inner)
+            {
+                indirectionLevels++;
+                syntax = inner.ElementType;
+            }
+
+            if (syntax is PredefinedTypeSyntax lang && lang.Keyword.IsKind(SyntaxKind.VoidKeyword))
+            {
+                isVoid = true;
+            }
+
+            string typeName = isConst switch {
+                true => "PtrToConst",
+                false => "Ptr"
+            };
+
+            if (isVoid)
+            {
+                return IdentifierName(typeName);
+            }
+
+            TypeSyntax ret = syntax;
+            while (indirectionLevels > 0)
+            {
+                var nodes = new List<TypeSyntax>
+                {
+                    ret,
+                    syntax
+                };
+
+                var separators = new List<SyntaxToken>
+                {
+                    Token(SyntaxKind.CommaToken),
+                };
+
+                ret = GenericName(Identifier(typeName)).WithTypeArgumentList(TypeArgumentList(SeparatedList(nodes, separators)));
+                indirectionLevels--;
+            }
+
+            return ret;
         }
     }
 }

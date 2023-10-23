@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Silk.NET.Core.UnitTests;
 
-public class PtrTests
+public class PtrToConstTests
 {
     [Test]
     public void SingleStringUtf8()
     {
-        Ptr<byte, byte> thing = STR_1;
+        PtrToConst<byte, byte> thing = STR_1;
         string thingBack = (string)thing;
         Assert.That(thingBack, Is.EqualTo(STR_1));
     }
@@ -17,7 +17,7 @@ public class PtrTests
     [Test]
     public void SingleStringUtf16()
     {
-        Ptr<char, char> thing = STR_1;
+        PtrToConst<char, char> thing = STR_1;
         string thingBack = (string)thing;
         Assert.That(thingBack, Is.EqualTo(STR_1));
     }
@@ -25,7 +25,7 @@ public class PtrTests
     [Test]
     public void SingleStringUtf32()
     {
-        Ptr<uint, uint> thing = STR_1;
+        PtrToConst<uint, uint> thing = STR_1;
         string thingBack = (string)thing;
         Assert.That(thingBack, Is.EqualTo(STR_1));
     }
@@ -33,21 +33,21 @@ public class PtrTests
     [Test]
     public void SingleStringUtf8FromByteArray()
     {
-        Ptr<byte, byte> thing = Encoding.UTF8.GetBytes(STR_1 + "\0");
+        PtrToConst<byte, byte> thing = Encoding.UTF8.GetBytes(STR_1 + "\0");
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
     [Test]
     public void SingleStringUtf8FromSpan()
     {
-        Ptr<byte, byte> thing = Encoding.UTF8.GetBytes(STR_1 + "\0").AsSpan();
+        PtrToConst<byte, byte> thing = Encoding.UTF8.GetBytes(STR_1 + "\0").AsSpan();
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
     [Test]
     public void SingleStringUtf8FromReadOnlySpan()
     {
-        Ptr<byte, byte> thing = (ReadOnlySpan<byte>) Encoding.UTF8.GetBytes(STR_1 + "\0");
+        PtrToConst<byte, byte> thing = (ReadOnlySpan<byte>) Encoding.UTF8.GetBytes(STR_1 + "\0");
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
@@ -56,7 +56,7 @@ public class PtrTests
     {
         fixed (byte* ptr = Encoding.UTF8.GetBytes(STR_1 + "\0"))
         {
-            Ptr<byte, byte> thing = ptr;
+            PtrToConst<byte, byte> thing = ptr;
             Assert.That((string)thing, Is.EqualTo(STR_1));
         }
     }
@@ -64,21 +64,21 @@ public class PtrTests
     [Test]
     public void SingleStringUtf16FromByteArray()
     {
-        Ptr<char, char> thing = STR_1.ToArray();
+        PtrToConst<char, char> thing = STR_1.ToArray();
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
     [Test]
     public void SingleStringUtf16FromSpan()
     {
-        Ptr<char, char> thing = STR_1.AsSpan().ToArray().AsSpan();
+        PtrToConst<char, char> thing = STR_1.AsSpan();
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
     [Test]
     public void SingleStringUtf16FromReadOnlySpan()
     {
-        Ptr<char, char> thing = (ReadOnlySpan<char>) STR_1;
+        PtrToConst<char, char> thing = STR_1.AsSpan();
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
@@ -87,7 +87,7 @@ public class PtrTests
     {
         fixed (byte* ptr = Encoding.Unicode.GetBytes(STR_1 + "\0"))
         {
-            Ptr<char, char> thing = (char*)ptr;
+            PtrToConst<char, char> thing = (char*)ptr;
             Assert.That((string)thing, Is.EqualTo(STR_1));
         }
     }
@@ -95,21 +95,21 @@ public class PtrTests
     [Test]
     public void SingleStringUtf32FromByteArray()
     {
-        Ptr<uint, uint> thing = MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0")).ToArray();
+        PtrToConst<uint, uint> thing = MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0")).ToArray();
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
     [Test]
     public void SingleStringUtf32FromSpan()
     {
-        Ptr<uint, uint> thing = MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0"));
+        PtrToConst<uint, uint> thing = MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0"));
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
     [Test]
     public void SingleStringUtf32FromReadOnlySpan()
     {
-        Ptr<uint, uint> thing = (ReadOnlySpan<uint>)MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0"));
+        PtrToConst<uint, uint> thing = (ReadOnlySpan<uint>)MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0"));
         Assert.That((string) thing, Is.EqualTo(STR_1));
     }
 
@@ -118,7 +118,7 @@ public class PtrTests
     {
         fixed (byte* ptr = Encoding.UTF32.GetBytes(STR_1 + "\0"))
         {
-            Ptr<uint, uint> thing = (uint*)ptr;
+            PtrToConst<uint, uint> thing = (uint*)ptr;
             Assert.That((string)thing, Is.EqualTo(STR_1));
         }
     }
@@ -127,14 +127,14 @@ public class PtrTests
     public void StringWithNonStringPointer()
     {
         nint dummy = 0x12345678;
-        Assert.Throws<InvalidCastException>(() => _ = (Ptr<nint, nint>)"Hello");
-        Assert.Throws<InvalidCastException>(() => _ = (string)dummy.AsPtrMut());
+        Assert.Throws<InvalidCastException>(() => _ = (PtrToConst<nint, nint>)"Hello");
+        Assert.Throws<InvalidCastException>(() => _ = (string)dummy.AsPtr());
     }
 
     [Test]
     public unsafe void NullIsNull()
     {
-        Ptr<nint, nint> ptr = nullptr;
+        PtrToConst<nint, nint> ptr = nullptr;
         Assert.True(Unsafe.IsNullRef(ref Unsafe.AsRef(in ptr.Value)));
         Assert.True(Unsafe.IsNullRef(ref Unsafe.AsRef(in ptr[0])));
         Assert.True((nint*) ptr is null);

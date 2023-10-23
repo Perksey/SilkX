@@ -12,151 +12,164 @@ public unsafe partial interface IGlfw
     public partial interface Static
     {
         [NativeFunction("glfw", EntryPoint = "glfwCreateCursor")]
-        static abstract Mut<Cursor> CreateCursor(
-            [NativeTypeName("const GLFWimage *")] Ptr<Image> image,
+        static abstract Ptr<Cursor, Cursor> CreateCursor(
+            [NativeTypeName("const GLFWimage *")] PtrToConst<Image, Image> image,
             int xhot,
             int yhot
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwCreateStandardCursor")]
-        static abstract Mut<Cursor> CreateStandardCursor(int shape);
+        static abstract Ptr<Cursor, Cursor> CreateStandardCursor(int shape);
 
         [NativeFunction("glfw", EntryPoint = "glfwCreateWindow")]
-        static abstract Mut<Window> CreateWindow(
+        static abstract Ptr<Window, Window> CreateWindow(
             int width,
             int height,
-            [NativeTypeName("const char *")] Ptr<sbyte> title,
-            Mut<Monitor> monitor,
-            Mut<Window> share
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> title,
+            Ptr<Monitor, Monitor> monitor,
+            Ptr<Window, Window> share
         );
 
         [NativeFunction("glfw", EntryPoint = "DefaultWindowHints")]
         static abstract void DefaultWindowHints();
 
         [NativeFunction("glfw", EntryPoint = "glfwDestroyCursor")]
-        static abstract void DestroyCursor(Mut<Cursor> cursor);
+        static abstract void DestroyCursor(Ptr<Cursor, Cursor> cursor);
 
         [NativeFunction("glfw", EntryPoint = "glfwDestroyWindow")]
-        static abstract void DestroyWindow(Mut<Window> window);
+        static abstract void DestroyWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwExtensionSupported")]
         static abstract int ExtensionSupported(
-            [NativeTypeName("const char *")] Ptr<sbyte> extension
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> extension
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwFocusWindow")]
-        static abstract void FocusWindow(Mut<Window> window);
+        static abstract void FocusWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetClipboardString")]
-        static abstract Ptr<sbyte> GetClipboardString(Mut<Window> window);
+        static abstract PtrToConst<sbyte, sbyte> GetClipboardString(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetCurrentContext")]
-        static abstract Mut<Window> GetCurrentContext();
+        static abstract Ptr<Window, Window> GetCurrentContext();
 
         [NativeFunction("glfw", EntryPoint = "glfwGetCursorPos")]
-        static abstract void GetCursorPos(Mut<Window> window, Mut<double> xpos, Mut<double> ypos);
+        static abstract void GetCursorPos(
+            Ptr<Window, Window> window,
+            Ptr<double, double> xpos,
+            Ptr<double, double> ypos
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetError")]
-        static abstract int GetError([NativeTypeName("const char **")] PtrPtr<sbyte> description);
+        static abstract int GetError(
+            [NativeTypeName("const char **")]
+                PtrToConst<PtrToConst<sbyte, sbyte>, sbyte> description
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetFramebufferSize")]
         static abstract void GetFramebufferSize(
-            Mut<Window> window,
-            Mut<int> width,
-            Mut<int> height
+            Ptr<Window, Window> window,
+            Ptr<int, int> width,
+            Ptr<int, int> height
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetGamepadName")]
-        static abstract Ptr<sbyte> GetGamepadName(int jid);
+        static abstract PtrToConst<sbyte, sbyte> GetGamepadName(int jid);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetGamepadState")]
-        static abstract int GetGamepadState(int jid, Mut<Gamepadstate> state);
+        static abstract int GetGamepadState(int jid, Ptr<Gamepadstate, Gamepadstate> state);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetGammaRamp")]
-        static abstract Ptr<Gammaramp> GetGammaRamp(Mut<Monitor> monitor);
+        static abstract PtrToConst<Gammaramp, Gammaramp> GetGammaRamp(
+            Ptr<Monitor, Monitor> monitor
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetInputMode")]
-        static abstract int GetInputMode(Mut<Window> window, int mode);
+        static abstract int GetInputMode(Ptr<Window, Window> window, int mode);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetJoystickAxes")]
-        static abstract Ptr<float> GetJoystickAxes(int jid, Mut<int> count);
+        static abstract PtrToConst<float, float> GetJoystickAxes(int jid, Ptr<int, int> count);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetJoystickButtons")]
-        static abstract Ptr<byte> GetJoystickButtons(int jid, Mut<int> count);
+        static abstract PtrToConst<byte, byte> GetJoystickButtons(int jid, Ptr<int, int> count);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetJoystickGUID")]
-        static abstract Ptr<sbyte> GetJoystickGuid(int jid);
+        static abstract PtrToConst<sbyte, sbyte> GetJoystickGuid(int jid);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetJoystickHats")]
-        static abstract Ptr<byte> GetJoystickHats(int jid, Mut<int> count);
+        static abstract PtrToConst<byte, byte> GetJoystickHats(int jid, Ptr<int, int> count);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetJoystickName")]
-        static abstract Ptr<sbyte> GetJoystickName(int jid);
+        static abstract PtrToConst<sbyte, sbyte> GetJoystickName(int jid);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetJoystickUserPointer")]
-        static abstract Mut GetJoystickUserPointer(int jid);
+        static abstract Ptr GetJoystickUserPointer(int jid);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetKey")]
-        static abstract int GetKey(Mut<Window> window, int key);
+        static abstract int GetKey(Ptr<Window, Window> window, int key);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetKeyName")]
-        static abstract Ptr<sbyte> GetKeyName(int key, int scancode);
+        static abstract PtrToConst<sbyte, sbyte> GetKeyName(int key, int scancode);
 
         [NativeFunction("glfw", EntryPoint = "GetKeyScancode")]
         static abstract int GetKeyScancode(int key);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitorContentScale")]
         static abstract void GetMonitorContentScale(
-            Mut<Monitor> monitor,
-            Mut<float> xscale,
-            Mut<float> yscale
+            Ptr<Monitor, Monitor> monitor,
+            Ptr<float, float> xscale,
+            Ptr<float, float> yscale
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitorName")]
-        static abstract Ptr<sbyte> GetMonitorName(Mut<Monitor> monitor);
+        static abstract PtrToConst<sbyte, sbyte> GetMonitorName(Ptr<Monitor, Monitor> monitor);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitorPhysicalSize")]
         static abstract void GetMonitorPhysicalSize(
-            Mut<Monitor> monitor,
-            Mut<int> widthMM,
-            Mut<int> heightMM
+            Ptr<Monitor, Monitor> monitor,
+            Ptr<int, int> widthMM,
+            Ptr<int, int> heightMM
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitorPos")]
-        static abstract void GetMonitorPos(Mut<Monitor> monitor, Mut<int> xpos, Mut<int> ypos);
+        static abstract void GetMonitorPos(
+            Ptr<Monitor, Monitor> monitor,
+            Ptr<int, int> xpos,
+            Ptr<int, int> ypos
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitors")]
-        static abstract MutMut<Monitor> GetMonitors(Mut<int> count);
+        static abstract Ptr<Ptr<Monitor, Monitor>, Monitor> GetMonitors(Ptr<int, int> count);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitorUserPointer")]
-        static abstract Mut GetMonitorUserPointer(Mut<Monitor> monitor);
+        static abstract Ptr GetMonitorUserPointer(Ptr<Monitor, Monitor> monitor);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMonitorWorkarea")]
         static abstract void GetMonitorWorkarea(
-            Mut<Monitor> monitor,
-            Mut<int> xpos,
-            Mut<int> ypos,
-            Mut<int> width,
-            Mut<int> height
+            Ptr<Monitor, Monitor> monitor,
+            Ptr<int, int> xpos,
+            Ptr<int, int> ypos,
+            Ptr<int, int> width,
+            Ptr<int, int> height
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetMouseButton")]
-        static abstract int GetMouseButton(Mut<Window> window, int button);
+        static abstract int GetMouseButton(Ptr<Window, Window> window, int button);
 
         [NativeFunction("glfw", EntryPoint = "GetPlatform")]
         static abstract int GetPlatform();
 
         [NativeFunction("glfw", EntryPoint = "glfwGetPrimaryMonitor")]
-        static abstract Mut<Monitor> GetPrimaryMonitor();
+        static abstract Ptr<Monitor, Monitor> GetPrimaryMonitor();
 
         [NativeFunction("glfw", EntryPoint = "glfwGetProcAddress")]
         static abstract delegate* unmanaged<void> GetProcAddress(
-            [NativeTypeName("const char *")] Ptr<sbyte> procname
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> procname
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetRequiredInstanceExtensions")]
-        static abstract PtrPtr<sbyte> GetRequiredInstanceExtensions(
-            [NativeTypeName("uint32_t *")] Mut<uint> count
+        static abstract PtrToConst<PtrToConst<sbyte, sbyte>, sbyte> GetRequiredInstanceExtensions(
+            [NativeTypeName("uint32_t *")] Ptr<uint, uint> count
         );
 
         [NativeFunction("glfw", EntryPoint = "GetTime")]
@@ -169,63 +182,78 @@ public unsafe partial interface IGlfw
         static abstract ulong GetTimerValue();
 
         [NativeFunction("glfw", EntryPoint = "glfwGetVersion")]
-        static abstract void GetVersion(Mut<int> major, Mut<int> minor, Mut<int> rev);
+        static abstract void GetVersion(
+            Ptr<int, int> major,
+            Ptr<int, int> minor,
+            Ptr<int, int> rev
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetVersionString")]
-        static abstract Ptr<sbyte> GetVersionString();
+        static abstract PtrToConst<sbyte, sbyte> GetVersionString();
 
         [NativeFunction("glfw", EntryPoint = "glfwGetVideoMode")]
-        static abstract Ptr<Vidmode> GetVideoMode(Mut<Monitor> monitor);
+        static abstract PtrToConst<Vidmode, Vidmode> GetVideoMode(Ptr<Monitor, Monitor> monitor);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetVideoModes")]
-        static abstract Ptr<Vidmode> GetVideoModes(Mut<Monitor> monitor, Mut<int> count);
+        static abstract PtrToConst<Vidmode, Vidmode> GetVideoModes(
+            Ptr<Monitor, Monitor> monitor,
+            Ptr<int, int> count
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowAttrib")]
-        static abstract int GetWindowAttrib(Mut<Window> window, int attrib);
+        static abstract int GetWindowAttrib(Ptr<Window, Window> window, int attrib);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowContentScale")]
         static abstract void GetWindowContentScale(
-            Mut<Window> window,
-            Mut<float> xscale,
-            Mut<float> yscale
+            Ptr<Window, Window> window,
+            Ptr<float, float> xscale,
+            Ptr<float, float> yscale
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowFrameSize")]
         static abstract void GetWindowFrameSize(
-            Mut<Window> window,
-            Mut<int> left,
-            Mut<int> top,
-            Mut<int> right,
-            Mut<int> bottom
+            Ptr<Window, Window> window,
+            Ptr<int, int> left,
+            Ptr<int, int> top,
+            Ptr<int, int> right,
+            Ptr<int, int> bottom
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowMonitor")]
-        static abstract Mut<Monitor> GetWindowMonitor(Mut<Window> window);
+        static abstract Ptr<Monitor, Monitor> GetWindowMonitor(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowOpacity")]
-        static abstract float GetWindowOpacity(Mut<Window> window);
+        static abstract float GetWindowOpacity(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowPos")]
-        static abstract void GetWindowPos(Mut<Window> window, Mut<int> xpos, Mut<int> ypos);
+        static abstract void GetWindowPos(
+            Ptr<Window, Window> window,
+            Ptr<int, int> xpos,
+            Ptr<int, int> ypos
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowSize")]
-        static abstract void GetWindowSize(Mut<Window> window, Mut<int> width, Mut<int> height);
+        static abstract void GetWindowSize(
+            Ptr<Window, Window> window,
+            Ptr<int, int> width,
+            Ptr<int, int> height
+        );
 
         [NativeFunction("glfw", EntryPoint = "glfwGetWindowUserPointer")]
-        static abstract Mut GetWindowUserPointer(Mut<Window> window);
+        static abstract Ptr GetWindowUserPointer(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwHideWindow")]
-        static abstract void HideWindow(Mut<Window> window);
+        static abstract void HideWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwIconifyWindow")]
-        static abstract void IconifyWindow(Mut<Window> window);
+        static abstract void IconifyWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "Init")]
         static abstract int Init();
 
         [NativeFunction("glfw", EntryPoint = "glfwInitAllocator")]
         static abstract void InitAllocator(
-            [NativeTypeName("const GLFWallocator *")] Ptr<Allocator> allocator
+            [NativeTypeName("const GLFWallocator *")] PtrToConst<Allocator, Allocator> allocator
         );
 
         [NativeFunction("glfw", EntryPoint = "InitHint")]
@@ -238,10 +266,10 @@ public unsafe partial interface IGlfw
         static abstract int JoystickPresent(int jid);
 
         [NativeFunction("glfw", EntryPoint = "glfwMakeContextCurrent")]
-        static abstract void MakeContextCurrent(Mut<Window> window);
+        static abstract void MakeContextCurrent(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwMaximizeWindow")]
-        static abstract void MaximizeWindow(Mut<Window> window);
+        static abstract void MaximizeWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "PlatformSupported")]
         static abstract int PlatformSupported(int platform);
@@ -256,52 +284,52 @@ public unsafe partial interface IGlfw
         static abstract int RawMouseMotionSupported();
 
         [NativeFunction("glfw", EntryPoint = "glfwRequestWindowAttention")]
-        static abstract void RequestWindowAttention(Mut<Window> window);
+        static abstract void RequestWindowAttention(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwRestoreWindow")]
-        static abstract void RestoreWindow(Mut<Window> window);
+        static abstract void RestoreWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetCharCallback")]
         static abstract delegate* unmanaged<Window*, uint, void> SetCharCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWcharfun")] delegate* unmanaged<Window*, uint, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetCharModsCallback")]
         static abstract delegate* unmanaged<Window*, uint, int, void> SetCharModsCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWcharmodsfun")]
                 delegate* unmanaged<Window*, uint, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetClipboardString")]
         static abstract void SetClipboardString(
-            Mut<Window> window,
-            [NativeTypeName("const char *")] Ptr<sbyte> @string
+            Ptr<Window, Window> window,
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> @string
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetCursor")]
-        static abstract void SetCursor(Mut<Window> window, Mut<Cursor> cursor);
+        static abstract void SetCursor(Ptr<Window, Window> window, Ptr<Cursor, Cursor> cursor);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetCursorEnterCallback")]
         static abstract delegate* unmanaged<Window*, int, void> SetCursorEnterCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWcursorenterfun")] delegate* unmanaged<Window*, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetCursorPos")]
-        static abstract void SetCursorPos(Mut<Window> window, double xpos, double ypos);
+        static abstract void SetCursorPos(Ptr<Window, Window> window, double xpos, double ypos);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetCursorPosCallback")]
         static abstract delegate* unmanaged<Window*, double, double, void> SetCursorPosCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWcursorposfun")]
                 delegate* unmanaged<Window*, double, double, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetDropCallback")]
         static abstract delegate* unmanaged<Window*, int, sbyte**, void> SetDropCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWdropfun")]
                 delegate* unmanaged<Window*, int, sbyte**, void> callback
         );
@@ -313,22 +341,22 @@ public unsafe partial interface IGlfw
 
         [NativeFunction("glfw", EntryPoint = "glfwSetFramebufferSizeCallback")]
         static abstract delegate* unmanaged<Window*, int, int, void> SetFramebufferSizeCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWframebuffersizefun")]
                 delegate* unmanaged<Window*, int, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetGamma")]
-        static abstract void SetGamma(Mut<Monitor> monitor, float gamma);
+        static abstract void SetGamma(Ptr<Monitor, Monitor> monitor, float gamma);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetGammaRamp")]
         static abstract void SetGammaRamp(
-            Mut<Monitor> monitor,
-            [NativeTypeName("const GLFWgammaramp *")] Ptr<Gammaramp> ramp
+            Ptr<Monitor, Monitor> monitor,
+            [NativeTypeName("const GLFWgammaramp *")] PtrToConst<Gammaramp, Gammaramp> ramp
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetInputMode")]
-        static abstract void SetInputMode(Mut<Window> window, int mode, int value);
+        static abstract void SetInputMode(Ptr<Window, Window> window, int mode, int value);
 
         [NativeFunction("glfw", EntryPoint = "SetJoystickCallback")]
         static abstract delegate* unmanaged<int, int, void> SetJoystickCallback(
@@ -336,11 +364,11 @@ public unsafe partial interface IGlfw
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetJoystickUserPointer")]
-        static abstract void SetJoystickUserPointer(int jid, Mut pointer);
+        static abstract void SetJoystickUserPointer(int jid, Ptr pointer);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetKeyCallback")]
         static abstract delegate* unmanaged<Window*, int, int, int, int, void> SetKeyCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWkeyfun")]
                 delegate* unmanaged<Window*, int, int, int, int, void> callback
         );
@@ -351,18 +379,18 @@ public unsafe partial interface IGlfw
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetMonitorUserPointer")]
-        static abstract void SetMonitorUserPointer(Mut<Monitor> monitor, Mut pointer);
+        static abstract void SetMonitorUserPointer(Ptr<Monitor, Monitor> monitor, Ptr pointer);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetMouseButtonCallback")]
         static abstract delegate* unmanaged<Window*, int, int, int, void> SetMouseButtonCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWmousebuttonfun")]
                 delegate* unmanaged<Window*, int, int, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetScrollCallback")]
         static abstract delegate* unmanaged<Window*, double, double, void> SetScrollCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWscrollfun")]
                 delegate* unmanaged<Window*, double, double, void> callback
         );
@@ -371,14 +399,14 @@ public unsafe partial interface IGlfw
         static abstract void SetTime(double time);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowAspectRatio")]
-        static abstract void SetWindowAspectRatio(Mut<Window> window, int numer, int denom);
+        static abstract void SetWindowAspectRatio(Ptr<Window, Window> window, int numer, int denom);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowAttrib")]
-        static abstract void SetWindowAttrib(Mut<Window> window, int attrib, int value);
+        static abstract void SetWindowAttrib(Ptr<Window, Window> window, int attrib, int value);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowCloseCallback")]
         static abstract delegate* unmanaged<Window*, void> SetWindowCloseCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowclosefun")] delegate* unmanaged<Window*, void> callback
         );
 
@@ -388,42 +416,42 @@ public unsafe partial interface IGlfw
             float,
             float,
             void> SetWindowContentScaleCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowcontentscalefun")]
                 delegate* unmanaged<Window*, float, float, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowFocusCallback")]
         static abstract delegate* unmanaged<Window*, int, void> SetWindowFocusCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowfocusfun")] delegate* unmanaged<Window*, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowIcon")]
         static abstract void SetWindowIcon(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             int count,
-            [NativeTypeName("const GLFWimage *")] Ptr<Image> images
+            [NativeTypeName("const GLFWimage *")] PtrToConst<Image, Image> images
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowIconifyCallback")]
         static abstract delegate* unmanaged<Window*, int, void> SetWindowIconifyCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowiconifyfun")]
                 delegate* unmanaged<Window*, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowMaximizeCallback")]
         static abstract delegate* unmanaged<Window*, int, void> SetWindowMaximizeCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowmaximizefun")]
                 delegate* unmanaged<Window*, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowMonitor")]
         static abstract void SetWindowMonitor(
-            Mut<Window> window,
-            Mut<Monitor> monitor,
+            Ptr<Window, Window> window,
+            Ptr<Monitor, Monitor> monitor,
             int xpos,
             int ypos,
             int width,
@@ -432,40 +460,40 @@ public unsafe partial interface IGlfw
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowOpacity")]
-        static abstract void SetWindowOpacity(Mut<Window> window, float opacity);
+        static abstract void SetWindowOpacity(Ptr<Window, Window> window, float opacity);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowPos")]
-        static abstract void SetWindowPos(Mut<Window> window, int xpos, int ypos);
+        static abstract void SetWindowPos(Ptr<Window, Window> window, int xpos, int ypos);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowPosCallback")]
         static abstract delegate* unmanaged<Window*, int, int, void> SetWindowPosCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowposfun")]
                 delegate* unmanaged<Window*, int, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowRefreshCallback")]
         static abstract delegate* unmanaged<Window*, void> SetWindowRefreshCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowrefreshfun")] delegate* unmanaged<Window*, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowShouldClose")]
-        static abstract void SetWindowShouldClose(Mut<Window> window, int value);
+        static abstract void SetWindowShouldClose(Ptr<Window, Window> window, int value);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowSize")]
-        static abstract void SetWindowSize(Mut<Window> window, int width, int height);
+        static abstract void SetWindowSize(Ptr<Window, Window> window, int width, int height);
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowSizeCallback")]
         static abstract delegate* unmanaged<Window*, int, int, void> SetWindowSizeCallback(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             [NativeTypeName("GLFWwindowsizefun")]
                 delegate* unmanaged<Window*, int, int, void> callback
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowSizeLimits")]
         static abstract void SetWindowSizeLimits(
-            Mut<Window> window,
+            Ptr<Window, Window> window,
             int minwidth,
             int minheight,
             int maxwidth,
@@ -474,18 +502,18 @@ public unsafe partial interface IGlfw
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowTitle")]
         static abstract void SetWindowTitle(
-            Mut<Window> window,
-            [NativeTypeName("const char *")] Ptr<sbyte> title
+            Ptr<Window, Window> window,
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> title
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwSetWindowUserPointer")]
-        static abstract void SetWindowUserPointer(Mut<Window> window, Mut pointer);
+        static abstract void SetWindowUserPointer(Ptr<Window, Window> window, Ptr pointer);
 
         [NativeFunction("glfw", EntryPoint = "glfwShowWindow")]
-        static abstract void ShowWindow(Mut<Window> window);
+        static abstract void ShowWindow(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "glfwSwapBuffers")]
-        static abstract void SwapBuffers(Mut<Window> window);
+        static abstract void SwapBuffers(Ptr<Window, Window> window);
 
         [NativeFunction("glfw", EntryPoint = "SwapInterval")]
         static abstract void SwapInterval(int interval);
@@ -495,7 +523,7 @@ public unsafe partial interface IGlfw
 
         [NativeFunction("glfw", EntryPoint = "glfwUpdateGamepadMappings")]
         static abstract int UpdateGamepadMappings(
-            [NativeTypeName("const char *")] Ptr<sbyte> @string
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> @string
         );
 
         [NativeFunction("glfw", EntryPoint = "VulkanSupported")]
@@ -513,142 +541,160 @@ public unsafe partial interface IGlfw
         [NativeFunction("glfw", EntryPoint = "glfwWindowHintString")]
         static abstract void WindowHintString(
             int hint,
-            [NativeTypeName("const char *")] Ptr<sbyte> value
+            [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> value
         );
 
         [NativeFunction("glfw", EntryPoint = "glfwWindowShouldClose")]
-        static abstract int WindowShouldClose(Mut<Window> window);
+        static abstract int WindowShouldClose(Ptr<Window, Window> window);
     }
 
     [NativeFunction("glfw", EntryPoint = "glfwCreateCursor")]
-    Mut<Cursor> CreateCursor(
-        [NativeTypeName("const GLFWimage *")] Ptr<Image> image,
+    Ptr<Cursor, Cursor> CreateCursor(
+        [NativeTypeName("const GLFWimage *")] PtrToConst<Image, Image> image,
         int xhot,
         int yhot
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwCreateStandardCursor")]
-    Mut<Cursor> CreateStandardCursor(int shape);
+    Ptr<Cursor, Cursor> CreateStandardCursor(int shape);
 
     [NativeFunction("glfw", EntryPoint = "glfwCreateWindow")]
-    Mut<Window> CreateWindow(
+    Ptr<Window, Window> CreateWindow(
         int width,
         int height,
-        [NativeTypeName("const char *")] Ptr<sbyte> title,
-        Mut<Monitor> monitor,
-        Mut<Window> share
+        [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> title,
+        Ptr<Monitor, Monitor> monitor,
+        Ptr<Window, Window> share
     );
 
     [NativeFunction("glfw", EntryPoint = "DefaultWindowHints")]
     void DefaultWindowHints();
 
     [NativeFunction("glfw", EntryPoint = "glfwDestroyCursor")]
-    void DestroyCursor(Mut<Cursor> cursor);
+    void DestroyCursor(Ptr<Cursor, Cursor> cursor);
 
     [NativeFunction("glfw", EntryPoint = "glfwDestroyWindow")]
-    void DestroyWindow(Mut<Window> window);
+    void DestroyWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwExtensionSupported")]
-    int ExtensionSupported([NativeTypeName("const char *")] Ptr<sbyte> extension);
+    int ExtensionSupported([NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> extension);
 
     [NativeFunction("glfw", EntryPoint = "glfwFocusWindow")]
-    void FocusWindow(Mut<Window> window);
+    void FocusWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetClipboardString")]
-    Ptr<sbyte> GetClipboardString(Mut<Window> window);
+    PtrToConst<sbyte, sbyte> GetClipboardString(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetCurrentContext")]
-    Mut<Window> GetCurrentContext();
+    Ptr<Window, Window> GetCurrentContext();
 
     [NativeFunction("glfw", EntryPoint = "glfwGetCursorPos")]
-    void GetCursorPos(Mut<Window> window, Mut<double> xpos, Mut<double> ypos);
+    void GetCursorPos(
+        Ptr<Window, Window> window,
+        Ptr<double, double> xpos,
+        Ptr<double, double> ypos
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetError")]
-    int GetError([NativeTypeName("const char **")] PtrPtr<sbyte> description);
+    int GetError(
+        [NativeTypeName("const char **")] PtrToConst<PtrToConst<sbyte, sbyte>, sbyte> description
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetFramebufferSize")]
-    void GetFramebufferSize(Mut<Window> window, Mut<int> width, Mut<int> height);
+    void GetFramebufferSize(Ptr<Window, Window> window, Ptr<int, int> width, Ptr<int, int> height);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetGamepadName")]
-    Ptr<sbyte> GetGamepadName(int jid);
+    PtrToConst<sbyte, sbyte> GetGamepadName(int jid);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetGamepadState")]
-    int GetGamepadState(int jid, Mut<Gamepadstate> state);
+    int GetGamepadState(int jid, Ptr<Gamepadstate, Gamepadstate> state);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetGammaRamp")]
-    Ptr<Gammaramp> GetGammaRamp(Mut<Monitor> monitor);
+    PtrToConst<Gammaramp, Gammaramp> GetGammaRamp(Ptr<Monitor, Monitor> monitor);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetInputMode")]
-    int GetInputMode(Mut<Window> window, int mode);
+    int GetInputMode(Ptr<Window, Window> window, int mode);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetJoystickAxes")]
-    Ptr<float> GetJoystickAxes(int jid, Mut<int> count);
+    PtrToConst<float, float> GetJoystickAxes(int jid, Ptr<int, int> count);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetJoystickButtons")]
-    Ptr<byte> GetJoystickButtons(int jid, Mut<int> count);
+    PtrToConst<byte, byte> GetJoystickButtons(int jid, Ptr<int, int> count);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetJoystickGUID")]
-    Ptr<sbyte> GetJoystickGuid(int jid);
+    PtrToConst<sbyte, sbyte> GetJoystickGuid(int jid);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetJoystickHats")]
-    Ptr<byte> GetJoystickHats(int jid, Mut<int> count);
+    PtrToConst<byte, byte> GetJoystickHats(int jid, Ptr<int, int> count);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetJoystickName")]
-    Ptr<sbyte> GetJoystickName(int jid);
+    PtrToConst<sbyte, sbyte> GetJoystickName(int jid);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetJoystickUserPointer")]
-    Mut GetJoystickUserPointer(int jid);
+    Ptr GetJoystickUserPointer(int jid);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetKey")]
-    int GetKey(Mut<Window> window, int key);
+    int GetKey(Ptr<Window, Window> window, int key);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetKeyName")]
-    Ptr<sbyte> GetKeyName(int key, int scancode);
+    PtrToConst<sbyte, sbyte> GetKeyName(int key, int scancode);
 
     [NativeFunction("glfw", EntryPoint = "GetKeyScancode")]
     int GetKeyScancode(int key);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitorContentScale")]
-    void GetMonitorContentScale(Mut<Monitor> monitor, Mut<float> xscale, Mut<float> yscale);
+    void GetMonitorContentScale(
+        Ptr<Monitor, Monitor> monitor,
+        Ptr<float, float> xscale,
+        Ptr<float, float> yscale
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitorName")]
-    Ptr<sbyte> GetMonitorName(Mut<Monitor> monitor);
+    PtrToConst<sbyte, sbyte> GetMonitorName(Ptr<Monitor, Monitor> monitor);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitorPhysicalSize")]
-    void GetMonitorPhysicalSize(Mut<Monitor> monitor, Mut<int> widthMM, Mut<int> heightMM);
+    void GetMonitorPhysicalSize(
+        Ptr<Monitor, Monitor> monitor,
+        Ptr<int, int> widthMM,
+        Ptr<int, int> heightMM
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitorPos")]
-    void GetMonitorPos(Mut<Monitor> monitor, Mut<int> xpos, Mut<int> ypos);
+    void GetMonitorPos(Ptr<Monitor, Monitor> monitor, Ptr<int, int> xpos, Ptr<int, int> ypos);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitors")]
-    MutMut<Monitor> GetMonitors(Mut<int> count);
+    Ptr<Ptr<Monitor, Monitor>, Monitor> GetMonitors(Ptr<int, int> count);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitorUserPointer")]
-    Mut GetMonitorUserPointer(Mut<Monitor> monitor);
+    Ptr GetMonitorUserPointer(Ptr<Monitor, Monitor> monitor);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMonitorWorkarea")]
     void GetMonitorWorkarea(
-        Mut<Monitor> monitor,
-        Mut<int> xpos,
-        Mut<int> ypos,
-        Mut<int> width,
-        Mut<int> height
+        Ptr<Monitor, Monitor> monitor,
+        Ptr<int, int> xpos,
+        Ptr<int, int> ypos,
+        Ptr<int, int> width,
+        Ptr<int, int> height
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetMouseButton")]
-    int GetMouseButton(Mut<Window> window, int button);
+    int GetMouseButton(Ptr<Window, Window> window, int button);
 
     [NativeFunction("glfw", EntryPoint = "GetPlatform")]
     int GetPlatform();
 
     [NativeFunction("glfw", EntryPoint = "glfwGetPrimaryMonitor")]
-    Mut<Monitor> GetPrimaryMonitor();
+    Ptr<Monitor, Monitor> GetPrimaryMonitor();
 
     [NativeFunction("glfw", EntryPoint = "glfwGetProcAddress")]
-    delegate* unmanaged<void> GetProcAddress([NativeTypeName("const char *")] Ptr<sbyte> procname);
+    delegate* unmanaged<void> GetProcAddress(
+        [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> procname
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetRequiredInstanceExtensions")]
-    PtrPtr<sbyte> GetRequiredInstanceExtensions([NativeTypeName("uint32_t *")] Mut<uint> count);
+    PtrToConst<PtrToConst<sbyte, sbyte>, sbyte> GetRequiredInstanceExtensions(
+        [NativeTypeName("uint32_t *")] Ptr<uint, uint> count
+    );
 
     [NativeFunction("glfw", EntryPoint = "GetTime")]
     double GetTime();
@@ -660,58 +706,64 @@ public unsafe partial interface IGlfw
     ulong GetTimerValue();
 
     [NativeFunction("glfw", EntryPoint = "glfwGetVersion")]
-    void GetVersion(Mut<int> major, Mut<int> minor, Mut<int> rev);
+    void GetVersion(Ptr<int, int> major, Ptr<int, int> minor, Ptr<int, int> rev);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetVersionString")]
-    Ptr<sbyte> GetVersionString();
+    PtrToConst<sbyte, sbyte> GetVersionString();
 
     [NativeFunction("glfw", EntryPoint = "glfwGetVideoMode")]
-    Ptr<Vidmode> GetVideoMode(Mut<Monitor> monitor);
+    PtrToConst<Vidmode, Vidmode> GetVideoMode(Ptr<Monitor, Monitor> monitor);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetVideoModes")]
-    Ptr<Vidmode> GetVideoModes(Mut<Monitor> monitor, Mut<int> count);
+    PtrToConst<Vidmode, Vidmode> GetVideoModes(Ptr<Monitor, Monitor> monitor, Ptr<int, int> count);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowAttrib")]
-    int GetWindowAttrib(Mut<Window> window, int attrib);
+    int GetWindowAttrib(Ptr<Window, Window> window, int attrib);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowContentScale")]
-    void GetWindowContentScale(Mut<Window> window, Mut<float> xscale, Mut<float> yscale);
+    void GetWindowContentScale(
+        Ptr<Window, Window> window,
+        Ptr<float, float> xscale,
+        Ptr<float, float> yscale
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowFrameSize")]
     void GetWindowFrameSize(
-        Mut<Window> window,
-        Mut<int> left,
-        Mut<int> top,
-        Mut<int> right,
-        Mut<int> bottom
+        Ptr<Window, Window> window,
+        Ptr<int, int> left,
+        Ptr<int, int> top,
+        Ptr<int, int> right,
+        Ptr<int, int> bottom
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowMonitor")]
-    Mut<Monitor> GetWindowMonitor(Mut<Window> window);
+    Ptr<Monitor, Monitor> GetWindowMonitor(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowOpacity")]
-    float GetWindowOpacity(Mut<Window> window);
+    float GetWindowOpacity(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowPos")]
-    void GetWindowPos(Mut<Window> window, Mut<int> xpos, Mut<int> ypos);
+    void GetWindowPos(Ptr<Window, Window> window, Ptr<int, int> xpos, Ptr<int, int> ypos);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowSize")]
-    void GetWindowSize(Mut<Window> window, Mut<int> width, Mut<int> height);
+    void GetWindowSize(Ptr<Window, Window> window, Ptr<int, int> width, Ptr<int, int> height);
 
     [NativeFunction("glfw", EntryPoint = "glfwGetWindowUserPointer")]
-    Mut GetWindowUserPointer(Mut<Window> window);
+    Ptr GetWindowUserPointer(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwHideWindow")]
-    void HideWindow(Mut<Window> window);
+    void HideWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwIconifyWindow")]
-    void IconifyWindow(Mut<Window> window);
+    void IconifyWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "Init")]
     int Init();
 
     [NativeFunction("glfw", EntryPoint = "glfwInitAllocator")]
-    void InitAllocator([NativeTypeName("const GLFWallocator *")] Ptr<Allocator> allocator);
+    void InitAllocator(
+        [NativeTypeName("const GLFWallocator *")] PtrToConst<Allocator, Allocator> allocator
+    );
 
     [NativeFunction("glfw", EntryPoint = "InitHint")]
     void InitHint(int hint, int value);
@@ -723,10 +775,10 @@ public unsafe partial interface IGlfw
     int JoystickPresent(int jid);
 
     [NativeFunction("glfw", EntryPoint = "glfwMakeContextCurrent")]
-    void MakeContextCurrent(Mut<Window> window);
+    void MakeContextCurrent(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwMaximizeWindow")]
-    void MaximizeWindow(Mut<Window> window);
+    void MaximizeWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "PlatformSupported")]
     int PlatformSupported(int platform);
@@ -741,51 +793,51 @@ public unsafe partial interface IGlfw
     int RawMouseMotionSupported();
 
     [NativeFunction("glfw", EntryPoint = "glfwRequestWindowAttention")]
-    void RequestWindowAttention(Mut<Window> window);
+    void RequestWindowAttention(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwRestoreWindow")]
-    void RestoreWindow(Mut<Window> window);
+    void RestoreWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetCharCallback")]
     delegate* unmanaged<Window*, uint, void> SetCharCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWcharfun")] delegate* unmanaged<Window*, uint, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetCharModsCallback")]
     delegate* unmanaged<Window*, uint, int, void> SetCharModsCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWcharmodsfun")] delegate* unmanaged<Window*, uint, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetClipboardString")]
     void SetClipboardString(
-        Mut<Window> window,
-        [NativeTypeName("const char *")] Ptr<sbyte> @string
+        Ptr<Window, Window> window,
+        [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> @string
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetCursor")]
-    void SetCursor(Mut<Window> window, Mut<Cursor> cursor);
+    void SetCursor(Ptr<Window, Window> window, Ptr<Cursor, Cursor> cursor);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetCursorEnterCallback")]
     delegate* unmanaged<Window*, int, void> SetCursorEnterCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWcursorenterfun")] delegate* unmanaged<Window*, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetCursorPos")]
-    void SetCursorPos(Mut<Window> window, double xpos, double ypos);
+    void SetCursorPos(Ptr<Window, Window> window, double xpos, double ypos);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetCursorPosCallback")]
     delegate* unmanaged<Window*, double, double, void> SetCursorPosCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWcursorposfun")]
             delegate* unmanaged<Window*, double, double, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetDropCallback")]
     delegate* unmanaged<Window*, int, sbyte**, void> SetDropCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWdropfun")] delegate* unmanaged<Window*, int, sbyte**, void> callback
     );
 
@@ -796,22 +848,22 @@ public unsafe partial interface IGlfw
 
     [NativeFunction("glfw", EntryPoint = "glfwSetFramebufferSizeCallback")]
     delegate* unmanaged<Window*, int, int, void> SetFramebufferSizeCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWframebuffersizefun")]
             delegate* unmanaged<Window*, int, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetGamma")]
-    void SetGamma(Mut<Monitor> monitor, float gamma);
+    void SetGamma(Ptr<Monitor, Monitor> monitor, float gamma);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetGammaRamp")]
     void SetGammaRamp(
-        Mut<Monitor> monitor,
-        [NativeTypeName("const GLFWgammaramp *")] Ptr<Gammaramp> ramp
+        Ptr<Monitor, Monitor> monitor,
+        [NativeTypeName("const GLFWgammaramp *")] PtrToConst<Gammaramp, Gammaramp> ramp
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetInputMode")]
-    void SetInputMode(Mut<Window> window, int mode, int value);
+    void SetInputMode(Ptr<Window, Window> window, int mode, int value);
 
     [NativeFunction("glfw", EntryPoint = "SetJoystickCallback")]
     delegate* unmanaged<int, int, void> SetJoystickCallback(
@@ -819,11 +871,11 @@ public unsafe partial interface IGlfw
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetJoystickUserPointer")]
-    void SetJoystickUserPointer(int jid, Mut pointer);
+    void SetJoystickUserPointer(int jid, Ptr pointer);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetKeyCallback")]
     delegate* unmanaged<Window*, int, int, int, int, void> SetKeyCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWkeyfun")]
             delegate* unmanaged<Window*, int, int, int, int, void> callback
     );
@@ -834,18 +886,18 @@ public unsafe partial interface IGlfw
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetMonitorUserPointer")]
-    void SetMonitorUserPointer(Mut<Monitor> monitor, Mut pointer);
+    void SetMonitorUserPointer(Ptr<Monitor, Monitor> monitor, Ptr pointer);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetMouseButtonCallback")]
     delegate* unmanaged<Window*, int, int, int, void> SetMouseButtonCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWmousebuttonfun")]
             delegate* unmanaged<Window*, int, int, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetScrollCallback")]
     delegate* unmanaged<Window*, double, double, void> SetScrollCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWscrollfun")]
             delegate* unmanaged<Window*, double, double, void> callback
     );
@@ -854,53 +906,53 @@ public unsafe partial interface IGlfw
     void SetTime(double time);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowAspectRatio")]
-    void SetWindowAspectRatio(Mut<Window> window, int numer, int denom);
+    void SetWindowAspectRatio(Ptr<Window, Window> window, int numer, int denom);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowAttrib")]
-    void SetWindowAttrib(Mut<Window> window, int attrib, int value);
+    void SetWindowAttrib(Ptr<Window, Window> window, int attrib, int value);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowCloseCallback")]
     delegate* unmanaged<Window*, void> SetWindowCloseCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowclosefun")] delegate* unmanaged<Window*, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowContentScaleCallback")]
     delegate* unmanaged<Window*, float, float, void> SetWindowContentScaleCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowcontentscalefun")]
             delegate* unmanaged<Window*, float, float, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowFocusCallback")]
     delegate* unmanaged<Window*, int, void> SetWindowFocusCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowfocusfun")] delegate* unmanaged<Window*, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowIcon")]
     void SetWindowIcon(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         int count,
-        [NativeTypeName("const GLFWimage *")] Ptr<Image> images
+        [NativeTypeName("const GLFWimage *")] PtrToConst<Image, Image> images
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowIconifyCallback")]
     delegate* unmanaged<Window*, int, void> SetWindowIconifyCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowiconifyfun")] delegate* unmanaged<Window*, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowMaximizeCallback")]
     delegate* unmanaged<Window*, int, void> SetWindowMaximizeCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowmaximizefun")] delegate* unmanaged<Window*, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowMonitor")]
     void SetWindowMonitor(
-        Mut<Window> window,
-        Mut<Monitor> monitor,
+        Ptr<Window, Window> window,
+        Ptr<Monitor, Monitor> monitor,
         int xpos,
         int ypos,
         int width,
@@ -909,38 +961,38 @@ public unsafe partial interface IGlfw
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowOpacity")]
-    void SetWindowOpacity(Mut<Window> window, float opacity);
+    void SetWindowOpacity(Ptr<Window, Window> window, float opacity);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowPos")]
-    void SetWindowPos(Mut<Window> window, int xpos, int ypos);
+    void SetWindowPos(Ptr<Window, Window> window, int xpos, int ypos);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowPosCallback")]
     delegate* unmanaged<Window*, int, int, void> SetWindowPosCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowposfun")] delegate* unmanaged<Window*, int, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowRefreshCallback")]
     delegate* unmanaged<Window*, void> SetWindowRefreshCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowrefreshfun")] delegate* unmanaged<Window*, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowShouldClose")]
-    void SetWindowShouldClose(Mut<Window> window, int value);
+    void SetWindowShouldClose(Ptr<Window, Window> window, int value);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowSize")]
-    void SetWindowSize(Mut<Window> window, int width, int height);
+    void SetWindowSize(Ptr<Window, Window> window, int width, int height);
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowSizeCallback")]
     delegate* unmanaged<Window*, int, int, void> SetWindowSizeCallback(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         [NativeTypeName("GLFWwindowsizefun")] delegate* unmanaged<Window*, int, int, void> callback
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowSizeLimits")]
     void SetWindowSizeLimits(
-        Mut<Window> window,
+        Ptr<Window, Window> window,
         int minwidth,
         int minheight,
         int maxwidth,
@@ -948,16 +1000,19 @@ public unsafe partial interface IGlfw
     );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowTitle")]
-    void SetWindowTitle(Mut<Window> window, [NativeTypeName("const char *")] Ptr<sbyte> title);
+    void SetWindowTitle(
+        Ptr<Window, Window> window,
+        [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> title
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwSetWindowUserPointer")]
-    void SetWindowUserPointer(Mut<Window> window, Mut pointer);
+    void SetWindowUserPointer(Ptr<Window, Window> window, Ptr pointer);
 
     [NativeFunction("glfw", EntryPoint = "glfwShowWindow")]
-    void ShowWindow(Mut<Window> window);
+    void ShowWindow(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "glfwSwapBuffers")]
-    void SwapBuffers(Mut<Window> window);
+    void SwapBuffers(Ptr<Window, Window> window);
 
     [NativeFunction("glfw", EntryPoint = "SwapInterval")]
     void SwapInterval(int interval);
@@ -966,7 +1021,7 @@ public unsafe partial interface IGlfw
     void Terminate();
 
     [NativeFunction("glfw", EntryPoint = "glfwUpdateGamepadMappings")]
-    int UpdateGamepadMappings([NativeTypeName("const char *")] Ptr<sbyte> @string);
+    int UpdateGamepadMappings([NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> @string);
 
     [NativeFunction("glfw", EntryPoint = "VulkanSupported")]
     int VulkanSupported();
@@ -981,8 +1036,11 @@ public unsafe partial interface IGlfw
     void WindowHint(int hint, int value);
 
     [NativeFunction("glfw", EntryPoint = "glfwWindowHintString")]
-    void WindowHintString(int hint, [NativeTypeName("const char *")] Ptr<sbyte> value);
+    void WindowHintString(
+        int hint,
+        [NativeTypeName("const char *")] PtrToConst<sbyte, sbyte> value
+    );
 
     [NativeFunction("glfw", EntryPoint = "glfwWindowShouldClose")]
-    int WindowShouldClose(Mut<Window> window);
+    int WindowShouldClose(Ptr<Window, Window> window);
 }
