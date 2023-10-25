@@ -198,40 +198,19 @@ public class UseSilkDSL : IMod
                         SeparatedList(
                             node.ParameterList.Parameters.Select(
                                 x =>
-                                    Argument(
-                                        IdentifierName(
-                                            x.Identifier
-                                            )
+                                    Argument(CastExpression(x.Type??ParseTypeName("void*"), IdentifierName(
+                                            x.Type is not null && IsDSLApplicable(x.Type)
+                                                ? IdentToInnerIdent(x.Identifier)
+                                                : x.Identifier
+                                            ))
+                                        
                                     )
                             )
                         )
                     )
                 );
 
-                List<StatementSyntax> statements = new List<StatementSyntax>();
-                statements.Add(fun);
-                statements.Add(hasRet ?
-                    LocalDeclarationStatement(
-                        VariableDeclaration(
-                            node.ReturnType,
-                            SingletonSeparatedList(
-                                VariableDeclarator("ret")
-                                    .WithInitializer(
-                                        EqualsValueClause(inv)
-                                )
-                            )
-                        )
-                    )
-                    : ExpressionStatement(inv));
-
-                statements.AddRange(paramsToChange.Select<ParameterSyntax, StatementSyntax>((param) => ExpressionStatement(InvocationExpression(IdentifierName(param.Identifier + ".Dispose")))));
-
-                if (hasRet)
-                {
-                    statements.Add(ReturnStatement(IdentifierName("ret")));
-                }
-
-                body = Block(statements.ToArray());
+                body = Block(fun, hasRet ? ReturnStatement(inv) : ExpressionStatement(inv));
 
                 // Remove the extern keyword from the outer method
                 methWithReplacementsButNoFixed = methWithReplacementsButNoFixed
@@ -255,7 +234,31 @@ public class UseSilkDSL : IMod
                 );
             }
 
+            // Generate the fixed blocks for the "inner idents"
             Debug.Assert(body is BlockSyntax);
+            foreach (var param in paramsToChange)
+            {
+                Debug.Assert(param.Type is not null);
+                body = FixedStatement(
+                    VariableDeclaration(
+                        GetDSLType(param.Type, param.AttributeLists, null, true),
+                        SingletonSeparatedList(
+                            VariableDeclarator(IdentToInnerIdent(param.Identifier))
+                                .WithInitializer(
+                                    EqualsValueClause(IdentifierName(param.Identifier))
+                                )
+                        )
+                    ),
+                    body
+                );
+            }
+
+            // The method body needs to be a block. Alternatively each FixedStatement could be wrapped in a Block, but
+            // that would be a lot of nested fixeds.
+            if (body is not BlockSyntax)
+            {
+                body = Block(body);
+            }
 
             // Need to check on the return type, but assume that there's an implicit conversion in the DSL
             if (_returnTypeReplaceable)
@@ -300,7 +303,7 @@ public class UseSilkDSL : IMod
                 return ret;
             }
 
-            return IdentifierName(ret.Identifier).WithTriviaFrom(ret);
+            return IdentifierName(IdentToInnerIdent(ret.Identifier)).WithTriviaFrom(ret);
         }
 
         public override SyntaxNode? VisitAttribute(AttributeSyntax node)
@@ -326,6 +329,12 @@ public class UseSilkDSL : IMod
             return ret;
         }
 
+        private static SyntaxToken IdentToInnerIdent(SyntaxToken token)
+        {
+            Debug.Assert(token.IsKind(SyntaxKind.IdentifierToken));
+            return Identifier($"__dsl_{token.ToString().TrimStart('@')}");
+        }
+
         private static SyntaxToken IdentToPInvokeIdent(SyntaxToken token)
         {
             Debug.Assert(token.IsKind(SyntaxKind.IdentifierToken));
@@ -337,7 +346,8 @@ public class UseSilkDSL : IMod
         private static TypeSyntax GetDSLType(
             TypeSyntax syntax,
             IEnumerable<AttributeListSyntax?>? attrLists,
-            SyntaxKind? target
+            SyntaxKind? target,
+            bool getPointer = false
         )
         {
             var isConst = false;
@@ -385,33 +395,57 @@ public class UseSilkDSL : IMod
                 isVoid = true;
             }
 
+            string finalTypeName = isConst switch {
+                true => "PtrRefToConst",
+                false => "PtrRef"
+            };
+
+            if (isVoid)
+            {
+                return getPointer ? PointerType(syntax) : IdentifierName(finalTypeName);
+            }
+
+            TypeSyntax ret = syntax;
+
             string typeName = isConst switch {
                 true => "PtrToConst",
                 false => "Ptr"
             };
 
-            if (isVoid)
-            {
-                return IdentifierName(typeName);
-            }
-
-            TypeSyntax ret = syntax;
-            while (indirectionLevels > 0)
-            {
-                var nodes = new List<TypeSyntax>
+            var nodes = new List<TypeSyntax>
                 {
                     ret,
                     syntax
                 };
 
-                var separators = new List<SyntaxToken>
-                {
+            var separators = new List<SyntaxToken>
+            {
                     Token(SyntaxKind.CommaToken),
+            };
+
+            while (indirectionLevels > 1)
+            {
+                nodes = new List<TypeSyntax>
+                {
+                    ret,
+                    syntax
                 };
 
                 ret = GenericName(Identifier(typeName)).WithTypeArgumentList(TypeArgumentList(SeparatedList(nodes, separators)));
                 indirectionLevels--;
             }
+
+            if (getPointer)
+            {
+                return PointerType(ret);
+            }
+
+            nodes = new List<TypeSyntax>
+                {
+                    ret,
+                    syntax
+                };
+            ret = GenericName(Identifier(finalTypeName)).WithTypeArgumentList(TypeArgumentList(SeparatedList(nodes, separators)));
 
             return ret;
         }

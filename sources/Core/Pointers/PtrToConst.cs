@@ -10,38 +10,11 @@ namespace Silk.NET.Core;
 /// A managed pointer to a const object
 /// </summary>
 /// <param name="ptr"></param>
-/// <param name="handle"></param>
 /// <param name="depth">the depth of the pointer types before a non-pointer type</param>
 
-public unsafe struct PtrToConst(void* ptr, GCHandle? handle = null, int depth = 1) : IPointerToMutable, IDisposable
+public unsafe struct PtrToConst(void* ptr,int depth = 1) : IPointerToMutable
 {
-    /// <summary>
-    /// Create a pinned pointer to a managed reference
-    /// </summary>
-    /// <param name="value">the managed reference</param>
-    public PtrToConst(ref object value)
-        : this(null)
-    {
-        Handle = GCHandle.Alloc(value, GCHandleType.Pinned);
-        Pointer = Handle.Value.AddrOfPinnedObject().ToPointer();
-    }
-
-    /// <summary>
-    /// Creates a pinned pointer to a managed handle
-    /// </summary>
-    /// <param name="handle"></param>
-    /// <param name="depth">the depth of the pointer types before a non-pointer type</param>
-    public PtrToConst(GCHandle handle, int depth = 1)
-        : this(null)
-    {
-        Handle = handle;
-        Pointer = (void*)handle.AddrOfPinnedObject().ToPointer();
-        Depth = depth;
-    }
-
     private readonly void* Pointer = ptr;
-    private readonly GCHandle? Handle = handle;
-
     /// <inheritdoc/>
     public int Depth { init; get; } = depth;
 
@@ -82,7 +55,7 @@ public unsafe struct PtrToConst(void* ptr, GCHandle? handle = null, int depth = 
     {
         if (PtrToConst<T, BaseType>.Depth != Depth)
             throw new InvalidOperationException();
-        return new PtrToConst<T, BaseType>((T*)Pointer, Handle);
+        return new PtrToConst<T, BaseType>((T*)Pointer);
     }
 
     /// <summary>
@@ -113,7 +86,7 @@ public unsafe struct PtrToConst(void* ptr, GCHandle? handle = null, int depth = 
     /// Creates a <see cref="PtrToConst"/> from the pointer
     /// </summary>
     /// <param name="ptr"></param>
-    public static explicit operator Ptr(PtrToConst ptr) => new(ptr.Pointer, ptr.Handle, ptr.Depth);
+    public static explicit operator Ptr(PtrToConst ptr) => new(ptr.Pointer, ptr.Depth);
 
     /// <summary>
     /// Converts the pointer into a pointer to the BaseType
@@ -164,111 +137,10 @@ public unsafe struct PtrToConst(void* ptr, GCHandle? handle = null, int depth = 
     }
 
     /// <summary>
-    /// Creates a <see cref="Ptr"/> from a BaseType array
-    /// Only valid for depth 1 pointers 
-    /// </summary>
-    /// <param name="array"></param>
-    public static implicit operator PtrToConst(byte[] array) => new(GCHandle.Alloc(array, GCHandleType.Pinned));
-
-    /// <summary>
-    /// Creates a <see cref="Ptr"/> from a jagged 2D BaseType array
-    /// Only valid for depth 2 pointers 
-    /// </summary>
-    /// <param name="array"></param>
-    public static implicit operator PtrToConst(byte[][] array) => SilkMarshal.JaggedArrayToPointerArray<byte>(array);
-
-    /// <summary>
-    /// Creates a <see cref="Ptr"/> from a jagged 2D BaseType array
-    /// Only valid for depth 3 pointers 
-    /// </summary>
-    /// <param name="array"></param>
-    public static implicit operator PtrToConst(byte[][][] array) => SilkMarshal.JaggedArrayToPointerArray<byte>(array);
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a BaseType span
-    /// Only valid for depth 1 pointers 
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(Span<byte> span)
-    {
-        return new(*(byte**)SilkMarshal.SpanRefToPtr<byte>(ref span), GCHandle.Alloc(span.GetPinnableReference(), GCHandleType.Pinned));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a jagged 2D BaseType span
-    /// Only valid for depth 2 pointers 
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(Span<byte[]> span) => new(GCHandle.Alloc(span.GetPinnableReference(), GCHandleType.Pinned), 2);
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a jagged 2D BaseType span
-    /// Only valid for depth 3 pointers 
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(Span<byte[][]> span) => new(GCHandle.Alloc(span.GetPinnableReference(), GCHandleType.Pinned), 3);
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a BaseType span
-    /// Only valid for depth 1 pointers 
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(ReadOnlySpan<byte> span)
-    {
-        return new(*(byte**)SilkMarshal.SpanRefToPtr<byte>(ref span), GCHandle.Alloc(span.GetPinnableReference(), GCHandleType.Pinned));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a jagged 2D BaseType span
-    /// Only valid for depth 2 pointers 
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(ReadOnlySpan<byte[]> span) => new(GCHandle.Alloc(span.GetPinnableReference(), GCHandleType.Pinned), 2);
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a jagged 3D BaseType span
-    /// Only valid for depth 3 pointers 
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(ReadOnlySpan<byte[][]> span) => new(GCHandle.Alloc(span.GetPinnableReference(), GCHandleType.Pinned), 3);
-
-    /// <summary>
     /// Creates a <see cref="PtrToConst"/> from a nullptr
     /// </summary>
     /// <param name="ptr"></param>
     public static implicit operator PtrToConst(NullPtr ptr) => new(null);
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a string
-    /// Only valid for depth 1 pointers
-    /// </summary>
-    /// <param name="str"></param>
-    public static implicit operator PtrToConst(string str)
-    {
-        object? obj = SilkMarshal.StringToArray(str, sizeof(byte));
-
-        return new(GCHandle.Alloc(obj, GCHandleType.Pinned));
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a span of strings
-    /// Only valid for depth 2 pointers
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(Span<string> span)
-    {
-        return new PtrToConst(GCHandle.Alloc(SilkMarshal.StringArrayToArray(span, sizeof(byte)), GCHandleType.Pinned), 2);
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a span of string arrays
-    /// Only valid for depth 3 pointers
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(Span<string[]> span)
-    {
-        return new PtrToConst(GCHandle.Alloc(SilkMarshal.StringArrayToArray(span, sizeof(byte)), GCHandleType.Pinned), 3);
-    }
 
     /// <summary>
     /// Creates a string from a <see cref="PtrToConst"/>
@@ -285,79 +157,32 @@ public unsafe struct PtrToConst(void* ptr, GCHandle? handle = null, int depth = 
     }
 
     /// <summary>
-    /// Create a managed pointer from a BaseType pointer array
-    /// Only valid for depth 2 pointers
-    /// </summary>
-    /// <param name="array"></param>
-    public static implicit operator PtrToConst(byte*[] array) => new PtrToConst(GCHandle.Alloc(array, GCHandleType.Pinned), 2);
-
-    /// <summary>
     /// Create a managed pointer from a BaseType double pointer
     /// Only valid for depth 2 pointers
     /// </summary>
     /// <param name="ptr"></param>
-    public static implicit operator PtrToConst(byte** ptr) => new PtrToConst(ptr, null, 2);
-
-    /// <summary>
-    /// Create a managed pointer from a BaseType pointer array
-    /// Only valid for depth 3 pointers
-    /// </summary>
-    /// <param name="array"></param>
-    public static implicit operator PtrToConst(byte*[][] array) => new PtrToConst(GCHandle.Alloc(array, GCHandleType.Pinned), 3);
-
-    /// <summary>
-    /// Create a managed pointer from a BaseType pointer array
-    /// Only valid for depth 3 pointers
-    /// </summary>
-    /// <param name="array"></param>
-    public static implicit operator PtrToConst(byte**[] array) => new PtrToConst(GCHandle.Alloc(array, GCHandleType.Pinned), 3);
+    public static implicit operator PtrToConst(byte** ptr) => new PtrToConst(ptr, 2);
 
     /// <summary>
     /// Create a managed pointer from a BaseType triple pointer
     /// Only valid for depth 3 pointers
     /// </summary>
     /// <param name="ptr"></param>
-    public static implicit operator PtrToConst(byte*** ptr) => new PtrToConst(ptr, null, 3);
+    public static implicit operator PtrToConst(byte*** ptr) => new PtrToConst(ptr, 3);
 
     /// <summary>
-    /// Create a managed pointer from an array of strings
+    /// Create a managed pointer from a BaseType double pointer
     /// Only valid for depth 2 pointers
     /// </summary>
-    /// <param name="strings"></param>
-    public static implicit operator PtrToConst(string[] strings)
-    {
-        return new PtrToConst(GCHandle.Alloc(SilkMarshal.StringArrayToArray(strings, sizeof(byte)), GCHandleType.Pinned), 2);
-    }
+    /// <param name="ptr"></param>
+    public static implicit operator PtrToConst(char** ptr) => new PtrToConst(ptr, 2);
 
     /// <summary>
-    /// Create a managed pointer from a jagged 2d array of strings
-    /// Only valid for depth 2 pointers
-    /// </summary>
-    /// <param name="strings"></param>
-    public static implicit operator PtrToConst(string[][] strings)
-    {
-        return new PtrToConst(GCHandle.Alloc(SilkMarshal.StringArrayToArray(strings, sizeof(byte)), GCHandleType.Pinned), 2);
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a span of strings
-    /// Only valid for depth 2 pointers
-    /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(ReadOnlySpan<string> span)
-    {
-        return new PtrToConst(GCHandle.Alloc(SilkMarshal.StringArrayToArray(span, sizeof(byte)), GCHandleType.Pinned), 2);
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PtrToConst"/> from a span of string arrays
+    /// Create a managed pointer from a BaseType triple pointer
     /// Only valid for depth 3 pointers
     /// </summary>
-    /// <param name="span"></param>
-    public static implicit operator PtrToConst(ReadOnlySpan<string[]> span)
-    {
-        return new PtrToConst(GCHandle.Alloc(SilkMarshal.StringArrayToArray(span, sizeof(byte)), GCHandleType.Pinned), 3);
-    }
+    /// <param name="ptr"></param>
+    public static implicit operator PtrToConst(char*** ptr) => new PtrToConst(ptr, 3);
 
     /// <summary>
     /// Determines whether two pointers are equal
@@ -429,15 +254,4 @@ public unsafe struct PtrToConst(void* ptr, GCHandle? handle = null, int depth = 
 
     /// <inheritdoc/>
     public override int GetHashCode() => base.GetHashCode();
-
-    /// <summary>
-    /// Frees pinned handle
-    /// </summary>
-    public void Dispose()
-    {
-        if (Handle is not null)
-        {
-            Handle.Value.Free();
-        }
-    }
 }

@@ -257,15 +257,15 @@ public static unsafe class SilkMarshal
     /// <param name="charSize">The character size of the marshalled strings.</param>
     /// <returns>The reference.</returns>
     /// <exception cref="InvalidOperationException">A GC exception occurred.</exception>
-    public static ref nint StringArrayToNative(ReadOnlySpan<string> strs, nint charSize = 1)
+    public static ref byte StringArrayToNative(ReadOnlySpan<string> strs, nint charSize = 1)
     {
         var ret = StringArrayToArray(strs, charSize);
         if (ret is null)
         {
-            return ref Unsafe.NullRef<nint>();
+            return ref Unsafe.NullRef<byte>();
         }
 
-        return ref ret[0];
+        return ref MemoryMarshal.Cast<nint, byte>(ret)[0];
     }
 
     /// <summary>
@@ -505,7 +505,7 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A reference to a <typeparamref name="T"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given reference.</returns>
-    public static PtrToConst<T, T> AsPtr<T>(ref this T @ref)
+    public static PtrRefToConst<T, T> AsPtrToConst<T>(ref this T @ref)
         where T : unmanaged => new(ref @ref);
 
     /// <summary>
@@ -514,7 +514,7 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A span of <typeparamref name="T"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given span's elements.</returns>
-    public static PtrToConst<T, T> AsPtr<T>(this Span<T> @ref)
+    public static PtrRefToConst<T, T> AsPtrToConst<T>(this Span<T> @ref)
         where T : unmanaged => new(ref @ref.GetPinnableReference());
 
     /// <summary>
@@ -523,7 +523,7 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A reference to a <see cref="PtrToConst{T, T}"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given reference.</returns>
-    public static PtrToConst<PtrToConst<T, T>, T> AsPtr2D<T>(ref this PtrToConst<T, T> @ref)
+    public static PtrRefToConst<PtrToConst<T, T>, T> AsPtrToConst2D<T>(ref this PtrToConst<T, T> @ref)
         where T : unmanaged => new(ref @ref);
 
     /// <summary>
@@ -532,8 +532,17 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A reference to a <see cref="PtrToConst{T, T}"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given reference.</returns>
-    public static PtrToConst<PtrToConst<T, T>, T> AsPtr2D<T>(ref this Span<T> @ref)
-        where T : unmanaged => new((PtrToConst<T, T>*)SpanRefToPtr(ref @ref), GCHandle.Alloc(@ref.GetPinnableReference(), GCHandleType.Pinned));
+    public static PtrRefToConst<PtrToConst<T, T>, T> AsPtrToConst2D<T>(ref this PtrRefToConst<T, T> @ref)
+        where T : unmanaged => new(ref RefConversion<T, PtrToConst<T, T>>(ref @ref));
+
+    /// <summary>
+    /// Creates a pointer from a reference.
+    /// </summary>
+    /// <param name="ref">A reference to a <see cref="PtrToConst{T, T}"/>.</param>
+    /// <typeparam name="T">The pointee type.</typeparam>
+    /// <returns>The pointer to the given reference.</returns>
+    public static PtrRefToConst<PtrToConst<T, T>, T> AsPtrToConst2D<T>(ref this Span<T> @ref)
+        where T : unmanaged => new(ref SpanRefConversion<T, PtrToConst<T, T>>(ref @ref));
 
     /// <summary>
     /// Creates a pointer from a reference.
@@ -541,7 +550,7 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A reference to a <typeparamref name="T"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given reference.</returns>
-    public static Ptr<T, T> AsPtrMut<T>(ref this T @ref)
+    public static PtrRef<T, T> AsPtr<T>(ref this T @ref)
         where T : unmanaged => new(ref @ref);
 
     /// <summary>
@@ -550,7 +559,7 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A span of <typeparamref name="T"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given span's elements.</returns>
-    public static Ptr<T, T> AsPtrMut<T>(this Span<T> @ref)
+    public static PtrRef<T, T> AsPtr<T>(this Span<T> @ref)
         where T : unmanaged => new(ref @ref.GetPinnableReference());
 
     /// <summary>
@@ -559,8 +568,17 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A reference to a <see cref="Ptr{T, T}"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given reference.</returns>
-    public static Ptr<Ptr<T, T>, T> AsPtrMut2D<T>(ref this Ptr<T, T> @ref)
+    public static PtrRef<Ptr<T, T>, T> AsPtr2D<T>(ref this Ptr<T, T> @ref)
         where T : unmanaged => new(ref @ref);
+
+    /// <summary>
+    /// Creates a pointer from a reference.
+    /// </summary>
+    /// <param name="ref">A reference to a <see cref="Ptr{T, T}"/>.</param>
+    /// <typeparam name="T">The pointee type.</typeparam>
+    /// <returns>The pointer to the given reference.</returns>
+    public static PtrRef<Ptr<T, T>, T> AsPtr2D<T>(ref this PtrRef<T, T> @ref)
+        where T : unmanaged => new(ref RefConversion<T, Ptr<T, T>>(ref @ref));
 
     /// <summary>
     /// Creates a pointer from a reference.
@@ -568,8 +586,8 @@ public static unsafe class SilkMarshal
     /// <param name="ref">A reference to a <see cref="Ptr{T,T}"/>.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The pointer to the given reference.</returns>
-    public static Ptr<Ptr<T, T>, T> AsPtrMut2D<T>(ref this Span<T> @ref)
-        where T : unmanaged => new((Ptr<T, T>*)SpanRefToPtr(ref @ref), GCHandle.Alloc(@ref.GetPinnableReference(), GCHandleType.Pinned));
+    public static PtrRef<Ptr<T, T>, T> AsPtr2D<T>(ref this Span<T> @ref)
+        where T : unmanaged => new(ref SpanRefConversion<T, Ptr<T,T>>(ref @ref));
 
     /// <summary>
     /// Unsafely creates a <see cref="Ptr{T, T}"/> from a <see cref="PtrToConst{T, T}"/>.
@@ -605,7 +623,7 @@ public static unsafe class SilkMarshal
     /// <param name="ptr">The pointer.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The reinterpreted pointer.</returns>
-    public static Ptr<Ptr<T, T>, T> ConstCast<T>(PtrToConst<PtrToConst<T, T>, T> ptr)
+    public static PtrRef<Ptr<T, T>, T> ConstCast<T>(PtrRefToConst<PtrToConst<T, T>, T> ptr)
         where T : unmanaged
     {
         IL.Emit.Ldarg_0();
@@ -614,12 +632,12 @@ public static unsafe class SilkMarshal
     }
 
     /// <summary>
-    /// Unsafely creates a <see cref="Ptr{T, T}"/> from a <see cref="PtrToConst{T, T}"/>.
+    /// Unsafely creates a <see cref="PtrRef{T, T}"/> from a <see cref="PtrRefToConst{T, T}"/>
     /// </summary>
     /// <param name="ptr">The pointer.</param>
     /// <typeparam name="T">The pointee type.</typeparam>
     /// <returns>The reinterpreted pointer.</returns>
-    public static ref Ptr<Ptr<T, T>, T> ConstCast<T>(ref PtrToConst<PtrToConst<T, T>, T> ptr)
+    public static ref PtrRef<Ptr<T, T>, T> ConstCast<T>(ref PtrToConst<PtrToConst<T, T>, T> ptr)
         where T : unmanaged
     {
         IL.Emit.Ldarg_0();
@@ -627,7 +645,34 @@ public static unsafe class SilkMarshal
         throw IL.Unreachable();
     }
 
-    internal static T* SpanRefToPtr<T>(ref Span<T> @ref)
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    internal static ref To SpanRefConversion<From,To>(ref Span<From> @ref)
+        where From : unmanaged
+        where To : unmanaged
+    {
+        IL.Emit.Ldarg_0();
+        IL.Emit.Ret();
+        throw IL.Unreachable();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    internal static ref To RefConversion<From, To>(ref From @ref)
+    {
+        IL.Emit.Ldarg_0();
+        IL.Emit.Ret();
+        throw IL.Unreachable();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    internal static ref readonly To RefRoConversion<From, To>(ref readonly From @ref)
+    {
+        IL.Emit.Ldarg_0();
+        IL.Emit.Ret();
+        throw IL.Unreachable();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    internal static ref To RefConversion<T, To>(ref PtrRef<T, T> @ref)
         where T : unmanaged
     {
         IL.Emit.Ldarg_0();
@@ -635,7 +680,8 @@ public static unsafe class SilkMarshal
         throw IL.Unreachable();
     }
 
-    internal static T* SpanRefToPtr<T>(ref ReadOnlySpan<T> @ref)
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    internal static ref To RefConversion<T, To>(ref PtrRefToConst<T, T> @ref)
         where T : unmanaged
     {
         IL.Emit.Ldarg_0();
@@ -643,11 +689,4 @@ public static unsafe class SilkMarshal
         throw IL.Unreachable();
     }
 
-    internal static T* RefToPtr<T>(ref T @ref)
-        where T : unmanaged
-    {
-        IL.Emit.Ldarg_0();
-        IL.Emit.Ret();
-        throw IL.Unreachable();
-    }
 }

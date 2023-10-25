@@ -14,7 +14,7 @@ if (window == nullptr)
 {
     // TODO const correctness
     PtrToConst<sbyte, sbyte> error = nullptr;
-    if (Glfw.GetError(error.AsPtr2D()) == 0 || error == nullptr)
+    if (Glfw.GetError(error.AsPtrToConst2D()) == 0 || error == nullptr)
     {
         throw new Exception("failed to create window and failed to get error");
     }

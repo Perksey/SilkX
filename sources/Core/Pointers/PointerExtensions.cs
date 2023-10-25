@@ -20,10 +20,10 @@ public unsafe static class PointerExtensions
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<byte, byte> @this)
+    public static string ReadToString(this PtrRef<byte, byte> @this)
     {
         return Encoding.UTF8.GetString(
-                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this.NativePointer)
+                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this)
             );
         
     }
@@ -34,17 +34,17 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<byte, byte> @this, int length) => Encoding.UTF8.GetString(@this.AsSpan(length));
+    public static string ReadToString(this PtrRef<byte, byte> @this, int length) => Encoding.UTF8.GetString(@this.AsSpan(length));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<sbyte, sbyte> @this)
+    public static string ReadToString(this PtrRef<sbyte, sbyte> @this)
     {
         return Encoding.UTF8.GetString(
-                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this.NativePointer)
+                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this)
             );
         
     }
@@ -55,16 +55,16 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<sbyte, sbyte> @this, int length) => Encoding.UTF8.GetString(MemoryMarshal.Cast<sbyte, byte>(@this.AsSpan(length)));
+    public static string ReadToString(this PtrRef<sbyte, sbyte> @this, int length) => Encoding.UTF8.GetString(MemoryMarshal.Cast<sbyte, byte>(@this.AsSpan(length)));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<ushort, ushort> @this)
+    public static string ReadToString(this PtrRef<ushort, ushort> @this)
     {
-        return new string((char*)@this.NativePointer);
+        return new string((char*)@this);
         
     }
 
@@ -74,16 +74,16 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<ushort, ushort> @this, int length) => new string(MemoryMarshal.Cast<ushort, char>(@this.AsSpan(length)));
+    public static string ReadToString(this PtrRef<ushort, ushort> @this, int length) => new string(MemoryMarshal.Cast<ushort, char>(@this.AsSpan(length)));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<short, short> @this)
+    public static string ReadToString(this PtrRef<short, short> @this)
     {
-        return new string((char*)@this.NativePointer);
+        return new string((char*)@this);
         
     }
 
@@ -93,16 +93,16 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<short, short> @this, int length) => new string(MemoryMarshal.Cast<short, char>(@this.AsSpan(length)));
+    public static string ReadToString(this PtrRef<short, short> @this, int length) => new string(MemoryMarshal.Cast<short, char>(@this.AsSpan(length)));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<char, char> @this)
+    public static string ReadToString(this PtrRef<char, char> @this)
     {
-        return new string((char*)@this.NativePointer);
+        return new string((char*)@this);
         
     }
 
@@ -112,22 +112,22 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<char, char> @this, int length) => new string(@this.AsSpan(length));
+    public static string ReadToString(this PtrRef<char, char> @this, int length) => new string(@this.AsSpan(length));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<uint, uint> @this)
+    public static string ReadToString(this PtrRef<uint, uint> @this)
     {
         int words;
-        for (words = 0; ((uint*)@this.NativePointer)[words] != 0; words++)
+        for (words = 0; ((uint*)@this)[words] != 0; words++)
         {
             // do nothing
         }
 
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, words * 4);
+        return Encoding.UTF32.GetString((byte*)@this, words * 4);
     }
 
     /// <summary>
@@ -136,9 +136,9 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<uint, uint> @this, int length)
+    public static string ReadToString(this PtrRef<uint, uint> @this, int length)
     {
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, length * 4);
+        return Encoding.UTF32.GetString((byte*)@this, length * 4);
         
     }
 
@@ -147,15 +147,15 @@ public unsafe static class PointerExtensions
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<int, int> @this)
+    public static string ReadToString(this PtrRef<int, int> @this)
     {
         int words;
-        for (words = 0; ((uint*)@this.NativePointer)[words] != 0; words++)
+        for (words = 0; ((uint*)@this)[words] != 0; words++)
         {
             // do nothing
         }
 
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, words * 4);
+        return Encoding.UTF32.GetString((byte*)@this, words * 4);
     }
 
     /// <summary>
@@ -164,9 +164,9 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this Ptr<int, int> @this, int length)
+    public static string ReadToString(this PtrRef<int, int> @this, int length)
     {
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, length * 4);
+        return Encoding.UTF32.GetString((byte*)@this, length * 4);
     }
     #endregion
 
@@ -176,10 +176,10 @@ public unsafe static class PointerExtensions
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<byte, byte> @this)
+    public static string ReadToString(this PtrRefToConst<byte, byte> @this)
     {
         return Encoding.UTF8.GetString(
-                MemoryMarshal.CreateReadOnlySpanFromNullTerminated(@this.NativePointer)
+                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this)
             );
     }
 
@@ -189,17 +189,17 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<byte, byte> @this, int length) => Encoding.UTF8.GetString(@this.AsSpan(length));
+    public static string ReadToString(this PtrRefToConst<byte, byte> @this, int length) => Encoding.UTF8.GetString(@this.AsSpan(length));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<sbyte, sbyte> @this)
+    public static string ReadToString(this PtrRefToConst<sbyte, sbyte> @this)
     {
         return Encoding.UTF8.GetString(
-                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this.NativePointer)
+                MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)@this)
             );
         
     }
@@ -210,16 +210,16 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<sbyte, sbyte> @this, int length) => Encoding.UTF8.GetString(MemoryMarshal.Cast<sbyte, byte>(@this.AsSpan(length)));
+    public static string ReadToString(this PtrRefToConst<sbyte, sbyte> @this, int length) => Encoding.UTF8.GetString(MemoryMarshal.Cast<sbyte, byte>(@this.AsSpan(length)));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<ushort, ushort> @this)
+    public static string ReadToString(this PtrRefToConst<ushort, ushort> @this)
     {
-        return new string((char*)@this.NativePointer);
+        return new string((char*)@this);
         
     }
 
@@ -229,16 +229,16 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<ushort, ushort> @this, int length) => new string(MemoryMarshal.Cast<ushort, char>(@this.AsSpan(length)));
+    public static string ReadToString(this PtrRefToConst<ushort, ushort> @this, int length) => new string(MemoryMarshal.Cast<ushort, char>(@this.AsSpan(length)));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<short, short> @this)
+    public static string ReadToString(this PtrRefToConst<short, short> @this)
     {
-        return new string((char*)@this.NativePointer);
+        return new string((char*)@this);
         
     }
 
@@ -248,16 +248,16 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<short, short> @this, int length) => new string(MemoryMarshal.Cast<short, char>(@this.AsSpan(length)));
+    public static string ReadToString(this PtrRefToConst<short, short> @this, int length) => new string(MemoryMarshal.Cast<short, char>(@this.AsSpan(length)));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<char, char> @this)
+    public static string ReadToString(this PtrRefToConst<char, char> @this)
     {
-        return new string((char*)@this.NativePointer);
+        return new string((char*)@this);
         
     }
 
@@ -267,22 +267,22 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<char, char> @this, int length) => new string(@this.AsSpan(length));
+    public static string ReadToString(this PtrRefToConst<char, char> @this, int length) => new string(@this.AsSpan(length));
 
     /// <summary>
     /// Creates a string from this pointer as a c-style string
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<uint, uint> @this)
+    public static string ReadToString(this PtrRefToConst<uint, uint> @this)
     {
         int words;
-        for (words = 0; ((uint*)@this.NativePointer)[words] != 0; words++)
+        for (words = 0; ((uint*)@this)[words] != 0; words++)
         {
             // do nothing
         }
 
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, words * 4);
+        return Encoding.UTF32.GetString((byte*)@this, words * 4);
     }
 
     /// <summary>
@@ -291,9 +291,9 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<uint, uint> @this, int length)
+    public static string ReadToString(this PtrRefToConst<uint, uint> @this, int length)
     {
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, length * 4);
+        return Encoding.UTF32.GetString((byte*)@this, length * 4);
         
     }
 
@@ -302,15 +302,15 @@ public unsafe static class PointerExtensions
     /// </summary>
     /// <param name="this"></param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<int, int> @this)
+    public static string ReadToString(this PtrRefToConst<int, int> @this)
     {
         int words;
-        for (words = 0; ((uint*)@this.NativePointer)[words] != 0; words++)
+        for (words = 0; ((uint*)@this)[words] != 0; words++)
         {
             // do nothing
         }
 
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, words * 4);
+        return Encoding.UTF32.GetString((byte*)@this, words * 4);
     }
 
     /// <summary>
@@ -319,9 +319,9 @@ public unsafe static class PointerExtensions
     /// <param name="this"></param>
     /// <param name="length">length of the string</param>
     /// <returns>the string</returns>
-    public static string ReadToString(this PtrToConst<int, int> @this, int length)
+    public static string ReadToString(this PtrRefToConst<int, int> @this, int length)
     {
-        return Encoding.UTF32.GetString((byte*)@this.NativePointer, length * 4);
+        return Encoding.UTF32.GetString((byte*)@this, length * 4);
         
     }
     #endregion
@@ -336,8 +336,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<byte, byte>, byte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<byte, byte>, byte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(byte));
 
     /// <summary>
@@ -346,8 +346,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<sbyte, sbyte>, sbyte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<sbyte, sbyte>, sbyte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(sbyte));
 
     /// <summary>
@@ -356,8 +356,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<ushort, ushort>, ushort> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<ushort, ushort>, ushort> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(ushort));
 
     /// <summary>
@@ -366,8 +366,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<short, short>, short> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<short, short>, short> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(short));
 
     /// <summary>
@@ -376,8 +376,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<char, char>, char> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<char, char>, char> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(char));
 
     /// <summary>
@@ -386,8 +386,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<uint, uint>, uint> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<uint, uint>, uint> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(uint));
 
     /// <summary>
@@ -396,8 +396,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<Ptr<int, int>, int> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<Ptr<int, int>, int> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(int));
     #endregion
 
@@ -408,8 +408,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<byte, byte>, byte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<byte, byte>, byte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(byte));
 
     /// <summary>
@@ -418,8 +418,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<sbyte, sbyte>, sbyte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<sbyte, sbyte>, sbyte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(sbyte));
 
     /// <summary>
@@ -428,8 +428,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<ushort, ushort>, ushort> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<ushort, ushort>, ushort> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(ushort));
 
     /// <summary>
@@ -438,8 +438,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<short, short>, short> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<short, short>, short> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(short));
 
     /// <summary>
@@ -448,8 +448,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<char, char>, char> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<char, char>, char> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(char));
 
     /// <summary>
@@ -458,8 +458,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<uint, uint>, uint> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<uint, uint>, uint> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(uint));
 
     /// <summary>
@@ -468,8 +468,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this Ptr<PtrToConst<int, int>, int> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRef<PtrToConst<int, int>, int> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(int));
     #endregion
 
@@ -480,8 +480,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<byte, byte>, byte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<byte, byte>, byte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(byte));
 
     /// <summary>
@@ -490,8 +490,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<sbyte, sbyte>, sbyte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<sbyte, sbyte>, sbyte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(sbyte));
 
     /// <summary>
@@ -500,8 +500,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<ushort, ushort>, ushort> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<ushort, ushort>, ushort> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(ushort));
 
     /// <summary>
@@ -510,8 +510,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<short, short>, short> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<short, short>, short> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(short));
 
     /// <summary>
@@ -520,8 +520,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<char, char>, char> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<char, char>, char> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(char));
 
     /// <summary>
@@ -530,8 +530,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<uint, uint>, uint> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<uint, uint>, uint> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(uint));
 
     /// <summary>
@@ -540,8 +540,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<Ptr<int, int>, int> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<Ptr<int, int>, int> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(int));
     #endregion
 
@@ -552,8 +552,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<byte, byte>, byte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<byte, byte>, byte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(byte));
 
     /// <summary>
@@ -562,8 +562,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<sbyte, sbyte>, sbyte> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<sbyte, sbyte>, sbyte> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(sbyte));
 
     /// <summary>
@@ -572,8 +572,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<ushort, ushort>, ushort> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<ushort, ushort>, ushort> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(ushort));
 
     /// <summary>
@@ -582,8 +582,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<short, short>, short> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<short, short>, short> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(short));
 
     /// <summary>
@@ -592,8 +592,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<char, char>, char> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<char, char>, char> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(char));
 
     /// <summary>
@@ -602,8 +602,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<uint, uint>, uint> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<uint, uint>, uint> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(uint));
 
     /// <summary>
@@ -612,8 +612,8 @@ public unsafe static class PointerExtensions
     /// <param name="length">The number of strings contained in the string array.</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]? ReadToStringArray(this PtrToConst<PtrToConst<int, int>, int> @this, int length) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<int, int>, int> @this, int length) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             sizeof(int));
     #endregion
     #endregion
@@ -627,8 +627,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -638,8 +638,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -649,8 +649,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -660,8 +660,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -671,8 +671,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -682,8 +682,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -693,8 +693,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -706,8 +706,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -717,8 +717,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -728,8 +728,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -739,8 +739,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -750,8 +750,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -761,8 +761,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -772,8 +772,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<Ptr<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<Ptr<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -785,8 +785,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -796,8 +796,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -807,8 +807,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -818,8 +818,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -829,8 +829,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -840,8 +840,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -851,8 +851,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -864,8 +864,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -875,8 +875,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -886,8 +886,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -897,8 +897,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -908,8 +908,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -919,8 +919,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -930,8 +930,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this Ptr<PtrToConst<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRef<PtrToConst<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -943,8 +943,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -954,8 +954,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -965,8 +965,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -976,8 +976,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -987,8 +987,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -998,8 +998,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -1009,8 +1009,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -1022,8 +1022,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -1033,8 +1033,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -1044,8 +1044,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -1055,8 +1055,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -1066,8 +1066,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -1077,8 +1077,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -1088,8 +1088,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<Ptr<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<Ptr<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -1101,8 +1101,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -1112,8 +1112,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -1123,8 +1123,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -1134,8 +1134,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -1145,8 +1145,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -1156,8 +1156,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -1167,8 +1167,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<Ptr<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
 
@@ -1180,8 +1180,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<byte, byte>, byte>, byte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(byte));
 
     /// <summary>
@@ -1191,8 +1191,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<sbyte, sbyte>, sbyte>, sbyte> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(sbyte));
 
     /// <summary>
@@ -1202,8 +1202,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<ushort, ushort>, ushort>, ushort> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(ushort));
 
     /// <summary>
@@ -1213,8 +1213,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<short, short>, short>, short> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(short));
 
     /// <summary>
@@ -1224,8 +1224,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<char, char>, char>, char> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(char));
 
     /// <summary>
@@ -1235,8 +1235,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<uint, uint>, uint>, uint> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(uint));
 
     /// <summary>
@@ -1246,8 +1246,8 @@ public unsafe static class PointerExtensions
     /// <param name="lengths">The number of strings in the array</param>
     /// <param name="this"></param>
     /// <returns>The string array.</returns>
-    public static string?[]?[]? ReadToStringArray(this PtrToConst<PtrToConst<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
-        SilkMarshal.NativeToStringArray(new(@this.NativePointer, length),
+    public static string?[]?[]? ReadToStringArray(this PtrRefToConst<PtrToConst<PtrToConst<int, int>, int>, int> @this, int length, int[] lengths) =>
+        SilkMarshal.NativeToStringArray(new((byte*)@this, length),
             lengths, sizeof(int));
     #endregion
     #endregion

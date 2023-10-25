@@ -9,9 +9,9 @@ public class Ptr2DTests
     [Test]
     public void SingleStringPtrUtf8()
     {
-        Ptr<byte, byte> thing = STR_1;
-        var thingPtr = thing.AsPtrMut2D();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<byte, byte> thing = STR_1;
+        var thingPtr = thing.AsPtr2D();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(Encoding.UTF8.GetString(thingPtr[0].AsSpan(Encoding.UTF8.GetByteCount(STR_1))), Is.EqualTo(STR_1));
@@ -21,9 +21,9 @@ public class Ptr2DTests
     [Test]
     public unsafe void SingleStringPtrUtf16()
     {
-        Ptr<char, char> thing = STR_1;
-        var thingPtr = thing.AsPtrMut2D();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<char, char> thing = STR_1;
+        var thingPtr = thing.AsPtr2D();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(thingPtr[0].AsSpan(STR_1.Length).ToString(), Is.EqualTo(STR_1));
@@ -33,9 +33,9 @@ public class Ptr2DTests
     [Test]
     public void SingleStringPtrUtf32()
     {
-        Ptr<uint, uint> thing = STR_1;
-        var thingPtr = thing.AsPtrMut2D();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<uint, uint> thing = STR_1;
+        var thingPtr = thing.AsPtr2D();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(
@@ -49,8 +49,8 @@ public class Ptr2DTests
     public void SingleStringPtrUtf8FromSpan()
     {
         Span<byte> thing = Encoding.UTF8.GetBytes(STR_1 + "\0");
-        var thingPtr = thing.AsPtrMut2D();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        var thingPtr = thing.AsPtr2D();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(Encoding.UTF8.GetString(thingPtr[0].AsSpan(Encoding.UTF8.GetByteCount(STR_1))), Is.EqualTo(STR_1));
@@ -61,8 +61,8 @@ public class Ptr2DTests
     public unsafe void SingleStringPtrUtf16FromSpan()
     {
         var thing = MemoryMarshal.Cast<byte, char>(Encoding.Unicode.GetBytes(STR_1 + "\0"));
-        var thingPtr = thing.AsPtrMut2D();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        var thingPtr = thing.AsPtr2D();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(thingPtr[0].AsSpan(STR_1.Length).ToString(), Is.EqualTo(STR_1));
@@ -73,8 +73,8 @@ public class Ptr2DTests
     public void SingleStringPtrUtf32FromSpan()
     {
         var thing = MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0"));
-        var thingPtr = thing.AsPtrMut2D();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        var thingPtr = thing.AsPtr2D();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(
@@ -89,8 +89,8 @@ public class Ptr2DTests
     {
         fixed (byte* thing = Encoding.UTF8.GetBytes(STR_1 + "\0"))
         {
-            Ptr<Ptr<byte, byte>, byte> thingPtr = new[] { thing };
-            Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+            PtrRef<Ptr<byte, byte>, byte> thingPtr = new[] { thing };
+            Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
             Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
             Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
             Assert.That(Encoding.UTF8.GetString(thingPtr[0].AsSpan(Encoding.UTF8.GetByteCount(STR_1))),
@@ -104,8 +104,8 @@ public class Ptr2DTests
     {
         fixed (byte* thing = Encoding.Unicode.GetBytes(STR_1 + "\0"))
         {
-            Ptr<Ptr<char, char>, char> thingPtr = new[] { (char*)thing };
-            Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+            PtrRef<Ptr<char, char>, char> thingPtr = new[] { (char*)thing };
+            Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
             Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
             Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
             Assert.That(thingPtr[0].AsSpan(STR_1.Length).ToString(), Is.EqualTo(STR_1));
@@ -118,8 +118,8 @@ public class Ptr2DTests
     {
         fixed (byte* thing = Encoding.UTF32.GetBytes(STR_1 + "\0"))
         {
-            Ptr<Ptr<uint, uint>, uint> thingPtr = new[] { (uint*)thing };
-            Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+            PtrRef<Ptr<uint, uint>, uint> thingPtr = new[] { (uint*)thing };
+            Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
             Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
             Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
             Assert.That(
@@ -133,8 +133,8 @@ public class Ptr2DTests
     [Test]
     public unsafe void SingleStringPtrUtf8FromJaggedArray()
     {
-        Ptr<Ptr<byte, byte>, byte> thingPtr = new[] { Encoding.UTF8.GetBytes(STR_1 + "\0") };
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<byte, byte>, byte> thingPtr = new[] { Encoding.UTF8.GetBytes(STR_1 + "\0") };
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(Encoding.UTF8.GetString(thingPtr[0].AsSpan(Encoding.UTF8.GetByteCount(STR_1))),
@@ -145,10 +145,10 @@ public class Ptr2DTests
     [Test]
     public unsafe void SingleStringPtrUtf16FromJaggedArray()
     {
-        Ptr<Ptr<char, char>, char> thingPtr = new[] {
+        PtrRef<Ptr<char, char>, char> thingPtr = new[] {
             MemoryMarshal.Cast<byte, char>(Encoding.Unicode.GetBytes(STR_1 + "\0")).ToArray()
         };
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(thingPtr[0].AsSpan(STR_1.Length).ToString(), Is.EqualTo(STR_1));
@@ -158,9 +158,9 @@ public class Ptr2DTests
     [Test]
     public unsafe void SingleStringPtrUtf32FromJaggedArray()
     {
-        Ptr<Ptr<uint, uint>, uint> thingPtr =
+        PtrRef<Ptr<uint, uint>, uint> thingPtr =
             new[] { MemoryMarshal.Cast<byte, uint>(Encoding.UTF32.GetBytes(STR_1 + "\0")).ToArray() };
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
         Assert.That(
@@ -175,8 +175,8 @@ public class Ptr2DTests
     {
         fixed (byte* thing = Encoding.UTF8.GetBytes(STR_1 + "\0"))
         {
-            Ptr<Ptr<byte, byte>, byte> thingPtr = &thing;
-            Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+            PtrRef<Ptr<byte, byte>, byte> thingPtr = &thing;
+            Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
             Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
             Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
             Assert.That(Encoding.UTF8.GetString(thingPtr[0].AsSpan(Encoding.UTF8.GetByteCount(STR_1))),
@@ -190,8 +190,8 @@ public class Ptr2DTests
     {
         fixed (byte* thing = Encoding.Unicode.GetBytes(STR_1 + "\0"))
         {
-            Ptr<Ptr<char, char>, char> thingPtr = (char**)&thing;
-            Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+            PtrRef<Ptr<char, char>, char> thingPtr = (char**)&thing;
+            Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
             Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
             Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
             Assert.That(thingPtr[0].AsSpan(STR_1.Length).ToString(), Is.EqualTo(STR_1));
@@ -204,8 +204,8 @@ public class Ptr2DTests
     {
         fixed (byte* thing = Encoding.UTF32.GetBytes(STR_1 + "\0"))
         {
-            Ptr<Ptr<uint, uint>, uint> thingPtr = (uint**)&thing;
-            Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+            PtrRef<Ptr<uint, uint>, uint> thingPtr = (uint**)&thing;
+            Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
             Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
             Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
             Assert.That(
@@ -219,8 +219,8 @@ public class Ptr2DTests
     [Test]
     public void DoubleStringUtf8()
     {
-        Ptr<Ptr<byte, byte>, byte> thingPtr = new[] { STR_1, STR_2 };
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<byte, byte>, byte> thingPtr = new[] { STR_1, STR_2 };
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[1], Is.EqualTo(STR_2));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
@@ -238,8 +238,8 @@ public class Ptr2DTests
     [Test]
     public void DoubleStringUtf16()
     {
-        Ptr<Ptr<char, char>, char> thingPtr = new[] { STR_1, STR_2 };
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<char, char>, char> thingPtr = new[] { STR_1, STR_2 };
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[1], Is.EqualTo(STR_2));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
@@ -257,8 +257,8 @@ public class Ptr2DTests
     [Test]
     public void DoubleStringUtf32()
     {
-        Ptr<Ptr<uint, uint>, uint> thingPtr = new[] { STR_1, STR_2 };
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<uint, uint>, uint> thingPtr = new[] { STR_1, STR_2 };
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[1], Is.EqualTo(STR_2));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
@@ -276,8 +276,8 @@ public class Ptr2DTests
     [Test]
     public void DoubleStringUtf8FromSpan()
     {
-        Ptr<Ptr<byte, byte>, byte> thingPtr = new[] { STR_1, STR_2 }.AsSpan();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<byte, byte>, byte> thingPtr = new[] { STR_1, STR_2 }.AsSpan();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[1], Is.EqualTo(STR_2));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
@@ -295,8 +295,8 @@ public class Ptr2DTests
     [Test]
     public void DoubleStringUtf16FromSpan()
     {
-        Ptr<Ptr<char, char>, char> thingPtr = new[] { STR_1, STR_2 }.AsSpan();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<char, char>, char> thingPtr = new[] { STR_1, STR_2 }.AsSpan();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[1], Is.EqualTo(STR_2));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
@@ -314,8 +314,8 @@ public class Ptr2DTests
     [Test]
     public void DoubleStringUtf32FromSpan()
     {
-        Ptr<Ptr<uint, uint>, uint> thingPtr = new[] { STR_1, STR_2 }.AsSpan();
-        Assert.That((string)thingPtr.Value, Is.EqualTo(STR_1));
+        PtrRef<Ptr<uint, uint>, uint> thingPtr = new[] { STR_1, STR_2 }.AsSpan();
+        Assert.That((string)thingPtr.Ref, Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[0], Is.EqualTo(STR_1));
         Assert.That((string)thingPtr[1], Is.EqualTo(STR_2));
         Assert.That(thingPtr[0][0], Is.EqualTo(STR_1[0]));
@@ -333,10 +333,10 @@ public class Ptr2DTests
     [Test]
     public unsafe void NullIsNull()
     {
-        Ptr<Ptr<nint, nint>, nint> ptr = nullptr;
+        PtrRef<Ptr<nint, nint>, nint> ptr = nullptr;
         Assert.True(((delegate*<ref Ptr<nint, nint>, bool>)(delegate*<ref readonly int, bool>)&Unsafe.IsNullRef<int>)(
             ref ((delegate*<in Ptr<nint, nint>, ref Ptr<nint, nint>>)(delegate*<ref readonly int, ref int>)&Unsafe.AsRef<int>)(
-                in ptr.Value)));
+                in ptr.Ref)));
         Assert.True(((delegate*<ref Ptr<nint, nint>, bool>)(delegate*<ref readonly int, bool>)&Unsafe.IsNullRef<int>)(
             ref ((delegate*<in Ptr<nint, nint>, ref Ptr<nint, nint>>)(delegate*<ref readonly int, ref int>)&Unsafe.AsRef<int>)(
                 in ptr[0])));
