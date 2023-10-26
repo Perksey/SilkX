@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-// casting into non-nullable, unboxing from nullable  
+// casting into non-nullable, unboxing from nullable
 #pragma warning disable 8600
 #pragma warning disable 8605
 
@@ -16,7 +16,7 @@ namespace Silk.NET.Maths
     /// To be added.
     /// </summary>
     /// <typeparam name="T">To be added.</typeparam>
-    public static partial class Scalar<T> where T : notnull
+    public static partial class Scalar<T> where T : notnull, INumber<T>
     {
         /// <summary>
         /// Represents the smallest positive value that is greater than zero. Zero for non-floating point numbers.
@@ -129,6 +129,7 @@ namespace Silk.NET.Maths
         static Scalar()
 #pragma warning restore 8618
         {
+
             // This won't inline as nicely on platforms that aren't .NET 5, however there's no other way to yield the
             // constant folding benefits that come with the fields being static readonly.
             //

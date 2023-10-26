@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
@@ -13,7 +14,7 @@ namespace Silk.NET.Maths
     [DataContract]
     public struct Matrix3X2<T>
         : IEquatable<Matrix3X2<T>>
-        where T : unmanaged, IFormattable, IComparable<T>, IEquatable<T>
+        where T : unmanaged, INumber<T>
     {
         private static readonly Matrix3X2<T> _identity = new(
             Scalar<T>.One, Scalar<T>.Zero,
@@ -406,7 +407,7 @@ namespace Silk.NET.Maths
                 Scalar.As<T, float>(from.M21), Scalar.As<T, float>(from.M22),
                 Scalar.As<T, float>(from.M31), Scalar.As<T, float>(from.M32)
             );
-        
+
         /// <summary>
         /// Converts a <see cref="Matrix3X2{T}"/> into one with a <typeparamref name="T"/> of <see cref="double"/>
         /// </summary>
@@ -526,13 +527,13 @@ namespace Silk.NET.Maths
                 Scalar.As<T, long>(from.M21), Scalar.As<T, long>(from.M22),
                 Scalar.As<T, long>(from.M31), Scalar.As<T, long>(from.M32)
             );
-        
+
         /// <summary>
         /// Returns this matrix casted to <typeparamref name="TOther"></typeparamref>
         /// </summary>
         /// <typeparam name="TOther">The type to cast to</typeparam>
         /// <returns>The casted matrix</returns>
-        public Matrix3X2<TOther> As<TOther>() where TOther : unmanaged, IFormattable, IEquatable<TOther>, IComparable<TOther>
+        public Matrix3X2<TOther> As<TOther>() where TOther : unmanaged, INumber<TOther>
         {
             return new(Row1.As<TOther>(), Row2.As<TOther>(), Row3.As<TOther>());
         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
@@ -15,7 +16,7 @@ namespace Silk.NET.Maths
     [Serializable]
     [DataContract]
     public struct Quaternion<T>
-        : IEquatable<Quaternion<T>> where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+        : IEquatable<Quaternion<T>> where T : unmanaged, INumber<T>
     {
         private const float SlerpEpsilon = 1e-6f;
 
@@ -689,7 +690,7 @@ namespace Silk.NET.Maths
         public static explicit operator System.Numerics.Quaternion(Quaternion<T> from)
             => new(Scalar.As<T, float>(from.X), Scalar.As<T, float>(from.Y), Scalar.As<T, float>(from.Z),
                 Scalar.As<T, float>(from.W));
-        
+
         /// <summary>
         /// Converts a <see cref="Quaternion{T}"/> into one with a <typeparamref name="T"/> of <see cref="double"/>
         /// </summary>
@@ -779,13 +780,13 @@ namespace Silk.NET.Maths
         public static explicit operator Quaternion<long>(Quaternion<T> from)
             => new(Scalar.As<T, long>(from.X), Scalar.As<T, long>(from.Y), Scalar.As<T, long>(from.Z),
                 Scalar.As<T, long>(from.W));
-        
+
         /// <summary>
         /// Returns this quaternion casted to <typeparamref name="TOther"></typeparamref>
         /// </summary>
         /// <typeparam name="TOther">The type to cast to</typeparam>
         /// <returns>The casted quaternion</returns>
-        public Quaternion<TOther> As<TOther>() where TOther : unmanaged, IFormattable, IEquatable<TOther>, IComparable<TOther>
+        public Quaternion<TOther> As<TOther>() where TOther : unmanaged, INumber<TOther>
         {
             return new(Scalar.As<T, TOther>(X), Scalar.As<T, TOther>(Y), Scalar.As<T, TOther>(Z), Scalar.As<T, TOther>(W));
         }

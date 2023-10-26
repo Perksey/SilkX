@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
@@ -14,7 +15,7 @@ namespace Silk.NET.Maths
     [DataContract]
     public struct Vector2D<T>
         : IEquatable<Vector2D<T>>, IFormattable
-        where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+        where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>, INumber<T>
     {
         /// <summary>The X component of the vector.</summary>
         [DataMember]
@@ -34,13 +35,13 @@ namespace Silk.NET.Maths
         public Vector2D(T x, T y) => (X, Y) = (x, y);
 
         /// <summary>Gets a vector whose 2 elements are equal to one.</summary>
-        public static Vector2D<T> One => new(Scalar<T>.One);
+        public static Vector2D<T> One => new(T.One);
 
         /// <summary>Gets the vector (1,0).</summary>
-        public static Vector2D<T> UnitX => new(Scalar<T>.One, Scalar<T>.Zero);
+        public static Vector2D<T> UnitX => new(T.One, T.Zero);
 
         /// <summary>Gets the vector (0,1).</summary>
-        public static Vector2D<T> UnitY => new(Scalar<T>.Zero, Scalar<T>.One);
+        public static Vector2D<T> UnitY => new(T.Zero, T.One);
 
         /// <summary>Returns a vector whose 2 elements are equal to zero.</summary>
         public static Vector2D<T> Zero => default;
@@ -143,7 +144,7 @@ namespace Silk.NET.Maths
         /// <returns>The summed vector.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Vector2D<T> operator +(Vector2D<T> left, Vector2D<T> right)
-            => new(Scalar.Add(left.X, right.X), Scalar.Add(left.Y, right.Y));
+            => new(left.X + right.X, left.Y + right.Y);
 
         /// <summary>Divides the first vector by the second.</summary>
         /// <param name="left">The first source vector.</param>
@@ -262,7 +263,7 @@ namespace Silk.NET.Maths
         /// <returns>The <see cref="System.Numerics"/> vector</returns>
         public static explicit operator System.Numerics.Vector2(Vector2D<T> from)
             => new(Scalar.As<T, float>(from.X), Scalar.As<T, float>(from.Y));
-        
+
         /// <summary>
         /// Converts a <see cref="Vector2D{T}"/> into one with a <typeparamref name="T"/> of <see cref="double"/>
         /// </summary>
@@ -342,13 +343,13 @@ namespace Silk.NET.Maths
         /// <returns>The <see cref="long"/> matrix</returns>
         public static explicit operator Vector2D<long>(Vector2D<T> from)
             => new(Scalar.As<T, long>(from.X), Scalar.As<T, long>(from.Y));
-        
+
         /// <summary>
         /// Returns this vector casted to <typeparamref name="TOther"></typeparamref>
         /// </summary>
         /// <typeparam name="TOther">The type to cast to</typeparam>
         /// <returns>The casted vector</returns>
-        public Vector2D<TOther> As<TOther>() where TOther : unmanaged, IFormattable, IEquatable<TOther>, IComparable<TOther>
+        public Vector2D<TOther> As<TOther>() where TOther : unmanaged, INumber<TOther>
         {
             return new(Scalar.As<T, TOther>(X), Scalar.As<T, TOther>(Y));
         }
