@@ -213,4 +213,10 @@ public readonly ref struct Ref
     /// <param name="ptr"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static explicit operator string(Ref ptr) => ptr.ReadToString();
+
+    /// <summary>
+    /// Creates a <see cref="Ref"/> from a string
+    /// </summary>
+    /// <param name="str"></param>
+    public static implicit operator Ref(string str) => new (ref Unsafe.AsRef(in SilkMarshal.StringToNative(str)));
 }

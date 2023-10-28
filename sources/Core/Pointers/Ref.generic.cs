@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using System.Text;
 
 namespace Silk.NET.Core;
@@ -223,6 +224,36 @@ public readonly ref struct Ref<T>
 
                 return Encoding.UTF32.GetString((byte*)raw, words * 4);
             }
+        }
+
+        throw new InvalidCastException();
+    }
+
+    /// <summary>
+    /// Creates a <see cref="Ref{T}"/> from a string
+    /// </summary>
+    /// <param name="str"></param>
+    public static implicit operator Ref<T>(string str)
+    {
+        if (typeof(T) == typeof(char) || typeof(T) == typeof(ushort) || typeof(T) == typeof(short))
+        {
+            return new(
+                ref Unsafe.As<char, T>(ref Unsafe.AsRef(in str.GetPinnableReference()))
+            );
+        }
+
+        if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
+        {
+            return new(
+                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str)))
+            );
+        }
+
+        if (typeof(T) == typeof(uint) || typeof(T) == typeof(int))
+        {
+            return new(
+                ref Unsafe.As<byte, T>(ref Unsafe.AsRef(in SilkMarshal.StringToNative(str, 4)))
+            );
         }
 
         throw new InvalidCastException();
