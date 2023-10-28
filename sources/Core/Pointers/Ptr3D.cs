@@ -80,9 +80,48 @@ namespace Silk.NET.Core
         /// Creates a span with the given length from this pointer.
         /// </summary>
         /// <param name="length">the span length</param>
+        /// <typeparam name="T"></typeparam>
         /// <returns>the span</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public Span<byte> AsSpan(int length) => new(Native, length);
+        public Span<T> AsSpan<T>(int length) where T : unmanaged => new(Native, length);
+
+        /// <summary>
+        /// Creates an array with the given length from this pointer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public T[] ToArray<T>(int length) where T : unmanaged => AsSpan<T>(length).ToArray();
+
+        /// <summary>
+        /// Creates a 2D Jagged array from this pointer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="length">the number of arrays at this pointer</param>
+        /// <param name="lengths">the number of elements in each array at this pointer</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public T[][] ToArray<T>(int length, int[] lengths) where T : unmanaged => SilkMarshal.NativeToArray<T>(AsSpan<nint>(length), lengths);
+
+        /// <summary>
+        /// Creates a 3D Jagged array from this pointer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="length">the number of arrays at this pointer</param>
+        /// <param name="lengths0">the number of arrays in each array at this pointer</param>
+        /// <param name="lengths1">the number of elements in each array</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public T[][][] ToArray<T>(int length, int[] lengths0, int[][] lengths1) where T : unmanaged => SilkMarshal.NativeToArray<T>(AsSpan<nint>(length), lengths0, lengths1);
+
+        /// <summary>
+        /// Creates a string 2D jagged array assuming that each string is null-terminated
+        /// </summary>
+        /// <param name="length">the number of arrays at this pointer</param>
+        /// <param name="lengths">the number of strings in each array</param>
+        /// <returns></returns>
+        public string?[]?[]? ReadToStringArray(int length, int[] lengths) => SilkMarshal.NativeToStringArray(AsSpan<nint>(length), lengths);
 
         /// <summary>
         /// Determines whether a pointer and reference are equal

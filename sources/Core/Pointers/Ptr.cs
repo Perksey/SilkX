@@ -48,9 +48,19 @@ namespace Silk.NET.Core
         /// Creates a span with the given length from this pointer.
         /// </summary>
         /// <param name="length">the span length</param>
+        /// <typeparam name="T"></typeparam>
         /// <returns>the span</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public Span<byte> AsSpan(int length) => new(Native, length);
+        public Span<T> AsSpan<T>(int length) where T : unmanaged => new(Native, length);
+
+        /// <summary>
+        /// Creates an array with the given length for this pointer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public T[] ToArray<T>(int length) where T : unmanaged => AsSpan<T>(length).ToArray();
 
         /// <summary>
         /// Determines whether a pointer and reference are equal
@@ -171,6 +181,7 @@ namespace Silk.NET.Core
         /// Creates a native pointer from a <see cref="Ptr"/>
         /// </summary>
         /// <param name="ptr"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public static implicit operator void*(Ptr ptr) => ptr.Native;
 
         /// <summary>

@@ -47,6 +47,14 @@ namespace Silk.NET.Core
         public Span<T> AsSpan(int length) => new(Native, length);
 
         /// <summary>
+        /// Creates an array with the given length from this pointer.
+        /// </summary>
+        /// <param name="length">the span length</param>
+        /// <returns>the span</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public T[] ToArray(int length) => AsSpan(length).ToArray();
+
+        /// <summary>
         /// Determines whether a pointer and reference are equal
         /// </summary>
         /// <param name="lh"></param>

@@ -520,4 +520,49 @@ public static unsafe class SilkMarshal
         IL.Emit.Ret();
         throw IL.Unreachable();
     }
+
+    /// <summary>
+    /// Converts a span of ptrs to a 2D jagged array
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="span"></param>
+    /// <param name="lengths">length of each array in the span</param>
+    /// <returns></returns>
+    public static T[][] NativeToArray<T>(Span<nint> span, int[] lengths) where T : unmanaged
+    {
+        T[][] ret = new T[span.Length][];
+        for (int i  = 0; i < span.Length; i++)
+        {
+            T* ptr = (T*)span[0];
+
+            if (ptr != null)
+            {
+                ret[i] = new Span<T>(ptr, lengths[i]).ToArray();
+            }
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// Converts a span of ptrs to a 3D jagged array
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="span"></param>
+    /// <param name="lengths0">length of each array in the span</param>
+    /// <param name="lengths1">length of each array in the arrays in the span</param>
+    /// <returns></returns>
+    public static T[][][] NativeToArray<T>(Span<nint> span, int[] lengths0, int[][] lengths1) where T : unmanaged
+    {
+        T[][][] ret = new T[span.Length][][];
+        for (int i = 0; i < span.Length; i++)
+        {
+            T* ptr = (T*)span[0];
+
+            if (ptr != null)
+            {
+                ret[i] = NativeToArray<T>(new(ptr, lengths0[i]), lengths1[i]);
+            }
+        }
+        return ret;
+    }
 }

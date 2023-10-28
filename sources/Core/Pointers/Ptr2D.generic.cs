@@ -95,6 +95,23 @@ namespace Silk.NET.Core
         public Span<Ptr<T>> AsSpan(int length) => new(Native, length);
 
         /// <summary>
+        /// Creates an array with the given length from this pointer
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public Ptr<T>[] ToArray(int length) => AsSpan(length).ToArray();
+
+        /// <summary>
+        /// Creates a 2D Jagged array from this pointer
+        /// </summary>
+        /// <param name="length">the number of arrays at this pointer</param>
+        /// <param name="lengths">the number of elements in each array at this pointer</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public T[][] ToArray(int length, int[] lengths) => SilkMarshal.NativeToArray<T>(new(Native, length), lengths);
+
+        /// <summary>
         /// Determines whether a pointer and reference are equal
         /// </summary>
         /// <param name="lh"></param>

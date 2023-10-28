@@ -92,7 +92,32 @@ namespace Silk.NET.Core
         /// <param name="length">the span length</param>
         /// <returns>the span</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public Span<Ptr<T>> AsSpan(int length) => new(Native, length);
+        public Span<Ptr2D<T>> AsSpan(int length) => new(Native, length);
+
+        /// <summary>
+        /// Creates an array with the given length from this pointer
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public Ptr2D<T>[] ToArray(int length) => AsSpan(length).ToArray();
+
+        /// <summary>
+        /// Creates a 2D Jagged array from this pointer
+        /// </summary>
+        /// <param name="length">the number of arrays at this pointer</param>
+        /// <param name="lengths">the numer of elements in each array at this pointer</param>
+        /// <returns></returns>
+        public Ptr<T>[][] ToArray(int length, int[] lengths) => SilkMarshal.NativeToArray<Ptr<T>>(new(Native, length), lengths);
+
+        /// <summary>
+        /// Creates a 3D Jagged array from this pointer
+        /// </summary>
+        /// <param name="length">the number of arrays at this pointer</param>
+        /// <param name="lengths0">the number of arrays in each array at this pointer</param>
+        /// <param name="lengths1">the number of elements in each array</param>
+        /// <returns></returns>
+        public T[][][] ToArray(int length, int[] lengths0, int[][] lengths1) => SilkMarshal.NativeToArray<T>(new(Native, length), lengths0, lengths1);
 
         /// <summary>
         /// Determines whether a pointer and reference are equal
