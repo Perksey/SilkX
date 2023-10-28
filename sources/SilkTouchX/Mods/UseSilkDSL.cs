@@ -34,10 +34,13 @@ public class UseSilkDSL : IMod
         return Task.FromResult(syntax);
     }
 
-    private class Rewriter() : ModCSharpSyntaxRewriter(true)
+    private class Rewriter() : CSharpSyntaxRewriter(true)
     {
         private HashSet<string>? _parameterIdentifiers;
         private bool _returnTypeReplaceable;
+        private bool _wroteUsing;
+        private bool _hasUsings;
+        private bool _needsUsing;
 
         public override SyntaxNode? VisitClassDeclaration(ClassDeclarationSyntax node)
         {
@@ -66,7 +69,7 @@ public class UseSilkDSL : IMod
             var consider =
                 node.Body is not null
                 || node.Modifiers.Any(x => x.IsKind(SyntaxKind.ExternKeyword));
-            if (!consider || !node.AttributeLists.GetNativeFunctionInfo(out var lib, out var ep, out _))
+            if (!consider)
             {
                 return base.VisitMethodDeclaration(node);
             }
@@ -117,46 +120,34 @@ public class UseSilkDSL : IMod
                                         SeparatedList(
                                             x.Attributes.Select(
                                                 y =>
-                                                    y.IsAttribute(
-                                                        "System.Runtime.InteropServices.DllImport"
-                                                    )
+                                                    y.IsExactSpellingDllImport()
                                                         ? y.WithArgumentList(
                                                             AttributeArgumentList(
-                                                                SeparatedList<AttributeArgumentSyntax>(
-                                                                    y.ArgumentList?.Arguments
-                                                                        .Select(
-                                                                            z =>
-                                                                                z.NameEquals?.Name.Identifier.ToString()
-                                                                                == nameof(
-                                                                                    DllImportAttribute.EntryPoint
-                                                                                )
-                                                                                    ? null
-                                                                                    : z
-                                                                        )
-                                                                        .Where(z => z is not null)
-                                                                        .Concat(
-                                                                            Enumerable.Repeat(
-                                                                                AttributeArgument(
-                                                                                        LiteralExpression(
-                                                                                            SyntaxKind.StringLiteralExpression,
-                                                                                            Literal(
-                                                                                                ep
-                                                                                                    ?? node.Identifier.ToString()
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                    .WithNameEquals(
-                                                                                        NameEquals(
-                                                                                            IdentifierName(
-                                                                                                nameof(
-                                                                                                    DllImportAttribute.EntryPoint
-                                                                                                )
+                                                                SeparatedList(
+                                                                    y.ArgumentList?.Arguments.Select(
+                                                                        z =>
+                                                                            z.NameEquals?.Name.Identifier.ToString()
+                                                                            == nameof(
+                                                                                DllImportAttribute.ExactSpelling
+                                                                            )
+                                                                                ? AttributeArgument(
+                                                                                    NameEquals(
+                                                                                        IdentifierName(
+                                                                                            nameof(
+                                                                                                DllImportAttribute.EntryPoint
                                                                                             )
                                                                                         )
                                                                                     ),
-                                                                                1
-                                                                            )
-                                                                        )!
+                                                                                    null,
+                                                                                    LiteralExpression(
+                                                                                        SyntaxKind.StringLiteralExpression,
+                                                                                        Literal(
+                                                                                            node.Identifier.ToString()
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                                : z
+                                                                    )
                                                                 )
                                                             )
                                                         )
@@ -220,9 +211,8 @@ public class UseSilkDSL : IMod
                             )
                         )
                     )
-                    .AddMaxOpt()
-                    .AddNativeFunction(node);
-                UsingsToAdd.Add("System.Runtime.CompilerServices");
+                    .AddMaxOpt();
+                _needsUsing = true;
             }
 
             // Convert expression bodies to statement bodies
@@ -312,7 +302,7 @@ public class UseSilkDSL : IMod
                 return base.VisitAttribute(node);
             }
 
-            return node.IsAttribute("System.Runtime.InteropServices.DllImport")
+            return node.IsDllImport()
                 ? null // Remove the attribute as it is being moved to a local function
                 : base.VisitAttribute(node);
         }
@@ -346,7 +336,7 @@ public class UseSilkDSL : IMod
             TypeSyntax syntax,
             IEnumerable<AttributeListSyntax?>? attrLists,
             SyntaxKind? target
-        )
+            )
         {
             var indirectionLevels = 0;
             var isVoid = false;
@@ -369,58 +359,90 @@ public class UseSilkDSL : IMod
                 );
             }
 
-            var isConst = false;
-            if (attrLists is not null)
+            var isOut = false;
+            if (target == SyntaxKind.ReturnKeyword || (attrLists is not null && attrLists.Any(a => a is not null ? a.Attributes.Any(attr => attr.Name.ToString() == "out") : false)))
             {
-                foreach (var attrs in attrLists)
-                {
-                    if (
-                        attrs is null
-                        || (
-                            target is not null
-                            && !(attrs.Target?.Identifier.IsKind(target.Value)).GetValueOrDefault()
-                        )
-                        || (target is null && attrs.Target is not null)
-                    )
-                    {
-                        continue;
-                    }
-
-                    foreach (var attributeSyntax in attrs.Attributes)
-                    {
-                        if (
-                            attributeSyntax.Name.ToString() == "NativeTypeName"
-                            && attributeSyntax.ArgumentList?.Arguments.FirstOrDefault()?.Expression
-                                is LiteralExpressionSyntax lit
-                            && lit.Token.ValueText.StartsWith("const ")
-                        )
-                        {
-                            isConst = true;
-                        }
-                    }
-                }
+                isOut = true;
             }
 
             return isVoid
                 ? IdentifierName(
-                    isConst switch
+                    isOut switch
                     {
-                        true => string.Join("", Enumerable.Repeat("Ptr", indirectionLevels)),
-                        false => string.Join("", Enumerable.Repeat("Mut", indirectionLevels)),
+                        true => indirectionLevels > 1 ? $"Ptr{indirectionLevels}D" : "Ptr",
+                        false => indirectionLevels > 1 ? $"Ref{indirectionLevels}D" : "Ref",
                     }
                 )
                 : GenericName(
                         Identifier(
-                            isConst switch
+                            isOut switch
                             {
-                                true
-                                    => string.Join("", Enumerable.Repeat("Ptr", indirectionLevels)),
-                                false
-                                    => string.Join("", Enumerable.Repeat("Mut", indirectionLevels)),
+                                true => indirectionLevels > 1 ? $"Ptr{indirectionLevels}D" : "Ptr",
+                                false => indirectionLevels > 1 ? $"Ref{indirectionLevels}D" : "Ref",
                             }
                         )
                     )
                     .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(syntax)));
+        }
+
+        public override SyntaxNode? VisitUsingStatement(UsingStatementSyntax node)
+        {
+            _hasUsings = true;
+            return base.VisitUsingStatement(node);
+        }
+
+        public override SyntaxNode? VisitCompilationUnit(CompilationUnitSyntax node)
+        {
+            var ret = base.VisitCompilationUnit(node);
+            if (!_wroteUsing && _needsUsing)
+            {
+                return ret switch
+                {
+                    CompilationUnitSyntax syn
+                        => syn.AddUsings(
+                            UsingDirective(
+                                QualifiedName(
+                                    QualifiedName(
+                                        IdentifierName("System"),
+                                        IdentifierName("Runtime")
+                                    ),
+                                    IdentifierName("CompilerServices")
+                                )
+                            )
+                        ),
+                    _ => ret
+                };
+            }
+
+            _wroteUsing = false;
+            return ret;
+        }
+
+        public override SyntaxNode? VisitNamespaceDeclaration(NamespaceDeclarationSyntax node)
+        {
+            var hadUsings = _hasUsings;
+            var ret = base.VisitNamespaceDeclaration(node);
+            if (!_hasUsings || hadUsings || !_needsUsing)
+            {
+                return ret;
+            }
+
+            // The masochistic code writer has decided to put usings within the namespace rather than at the
+            // compilation unit level, so let's begrudgingly follow suit
+            _wroteUsing = true;
+            return ret switch
+            {
+                NamespaceDeclarationSyntax syn
+                    => syn.AddUsings(
+                        UsingDirective(
+                            QualifiedName(
+                                QualifiedName(IdentifierName("System"), IdentifierName("Runtime")),
+                                IdentifierName("CompilerServices")
+                            )
+                        )
+                    ),
+                _ => ret
+            };
         }
     }
 }
