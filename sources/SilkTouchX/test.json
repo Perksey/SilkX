@@ -52,7 +52,8 @@
         "Profiles": [
           {
             "SourceSubdirectory": "glfw3/test1",
-            "Name": "test1"
+            "Name": "test1",
+            "BakedOutputSubdirectory": "glfw3"
           }
         ]
       }
