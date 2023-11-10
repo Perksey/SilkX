@@ -4,11 +4,24 @@
 // Original source is Copyright © 2002-2006 Marcus Geelnard, 2006-2019 Camilla Löwy. Licensed under the zlib license.
 namespace Silk.NET.GLFW;
 
-public unsafe partial struct Image
+[SupportedApiProfile("test1")]
+public partial struct Vidmode
 {
+    [SupportedApiProfile("test1")]
     public int Width;
+
+    [SupportedApiProfile("test1")]
     public int Height;
 
-    [NativeTypeName("unsigned char *")]
-    public byte* Pixels;
+    [SupportedApiProfile("test1")]
+    public int RedBits;
+
+    [SupportedApiProfile("test1")]
+    public int GreenBits;
+
+    [SupportedApiProfile("test1")]
+    public int BlueBits;
+
+    [SupportedApiProfile("test1")]
+    public int RefreshRate;
 }

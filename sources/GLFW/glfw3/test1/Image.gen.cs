@@ -4,11 +4,16 @@
 // Original source is Copyright © 2002-2006 Marcus Geelnard, 2006-2019 Camilla Löwy. Licensed under the zlib license.
 namespace Silk.NET.GLFW;
 
-public unsafe partial struct Gamepadstate
+[SupportedApiProfile("test1")]
+public unsafe partial struct Image
 {
-    [NativeTypeName("unsigned char[15]")]
-    public fixed byte Buttons[15];
+    [SupportedApiProfile("test1")]
+    public int Width;
 
-    [NativeTypeName("float[6]")]
-    public fixed float Axes[6];
+    [SupportedApiProfile("test1")]
+    public int Height;
+
+    [NativeTypeName("unsigned char *")]
+    [SupportedApiProfile("test1")]
+    public byte* Pixels;
 }

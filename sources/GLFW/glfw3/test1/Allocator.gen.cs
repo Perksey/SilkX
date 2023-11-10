@@ -4,15 +4,21 @@
 // Original source is Copyright © 2002-2006 Marcus Geelnard, 2006-2019 Camilla Löwy. Licensed under the zlib license.
 namespace Silk.NET.GLFW;
 
+[SupportedApiProfile("test1")]
 public unsafe partial struct Allocator
 {
     [NativeTypeName("GLFWallocatefun")]
+    [SupportedApiProfile("test1")]
     public delegate* unmanaged<nuint, void*, void*> Allocate;
 
     [NativeTypeName("GLFWreallocatefun")]
+    [SupportedApiProfile("test1")]
     public delegate* unmanaged<void*, nuint, void*, void*> Reallocate;
 
     [NativeTypeName("GLFWdeallocatefun")]
+    [SupportedApiProfile("test1")]
     public delegate* unmanaged<void*, void*, void> Deallocate;
+
+    [SupportedApiProfile("test1")]
     public void* User;
 }

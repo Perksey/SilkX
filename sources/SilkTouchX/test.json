@@ -26,7 +26,7 @@
     },
     "GLFW": {
       "ClangSharpResponseFiles": [
-        "../../eng/silktouch/glfw/**/generate.rsp"
+        "../../eng/silktouch/glfw/**/generate1.rsp"
       ],
       "InputSourceRoot": "../GLFW",
       "InputTestRoot": "../../tests/GLFW",
@@ -35,6 +35,7 @@
       "Solution": "../../SilkX.sln",
       "Mods": [
         "AddStdIncludes",
+        "AddApiProfiles",
         "AddOpaqueStructs",
         "UseSilkDSL",
         "PrettifyNames",
@@ -45,6 +46,14 @@
           "GLFWcursor",
           "GLFWmonitor",
           "GLFWwindow"
+        ]
+      },
+      "AddApiProfiles": {
+        "Profiles": [
+          {
+            "SourceSubdirectory": "glfw3/test1",
+            "Name": "test1"
+          }
         ]
       }
     }

@@ -4,17 +4,22 @@
 // Original source is Copyright © 2002-2006 Marcus Geelnard, 2006-2019 Camilla Löwy. Licensed under the zlib license.
 namespace Silk.NET.GLFW;
 
+[SupportedApiProfile("test1")]
 public unsafe partial struct Gammaramp
 {
     [NativeTypeName("unsigned short *")]
+    [SupportedApiProfile("test1")]
     public ushort* Red;
 
     [NativeTypeName("unsigned short *")]
+    [SupportedApiProfile("test1")]
     public ushort* Green;
 
     [NativeTypeName("unsigned short *")]
+    [SupportedApiProfile("test1")]
     public ushort* Blue;
 
     [NativeTypeName("unsigned int")]
+    [SupportedApiProfile("test1")]
     public uint Size;
 }

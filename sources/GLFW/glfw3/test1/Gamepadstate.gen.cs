@@ -4,12 +4,14 @@
 // Original source is Copyright © 2002-2006 Marcus Geelnard, 2006-2019 Camilla Löwy. Licensed under the zlib license.
 namespace Silk.NET.GLFW;
 
-public partial struct Vidmode
+[SupportedApiProfile("test1")]
+public unsafe partial struct Gamepadstate
 {
-    public int Width;
-    public int Height;
-    public int RedBits;
-    public int GreenBits;
-    public int BlueBits;
-    public int RefreshRate;
+    [NativeTypeName("unsigned char[15]")]
+    [SupportedApiProfile("test1")]
+    public fixed byte Buttons[15];
+
+    [NativeTypeName("float[6]")]
+    [SupportedApiProfile("test1")]
+    public fixed float Axes[6];
 }
