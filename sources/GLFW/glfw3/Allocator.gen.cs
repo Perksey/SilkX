@@ -7,20 +7,25 @@ namespace Silk.NET.GLFW;
 using System.Runtime.InteropServices;
 
 [SupportedApiProfile("test1")]
+[SupportedApiProfile("test2")]
 public unsafe partial struct Allocator
 {
     [NativeTypeName("GLFWallocatefun")]
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public delegate* unmanaged<nuint, void*, void*> Allocate;
 
     [NativeTypeName("GLFWreallocatefun")]
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public delegate* unmanaged<void*, nuint, void*, void*> Reallocate;
 
     [NativeTypeName("GLFWdeallocatefun")]
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public delegate* unmanaged<void*, void*, void> Deallocate;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public void* User;
 }

@@ -7,15 +7,19 @@ namespace Silk.NET.GLFW;
 using System.Runtime.InteropServices;
 
 [SupportedApiProfile("test1")]
+[SupportedApiProfile("test2")]
 public unsafe partial struct Image
 {
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int Width;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int Height;
 
     [NativeTypeName("unsigned char *")]
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public byte* Pixels;
 }

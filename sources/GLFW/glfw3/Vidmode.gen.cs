@@ -7,23 +7,30 @@ namespace Silk.NET.GLFW;
 using System.Runtime.InteropServices;
 
 [SupportedApiProfile("test1")]
+[SupportedApiProfile("test2")]
 public partial struct Vidmode
 {
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int Width;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int Height;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int RedBits;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int GreenBits;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int BlueBits;
 
+    [SupportedApiProfile("test2")]
     [SupportedApiProfile("test1")]
     public int RefreshRate;
 }

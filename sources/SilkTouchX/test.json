@@ -26,7 +26,8 @@
     },
     "GLFW": {
       "ClangSharpResponseFiles": [
-        "../../eng/silktouch/glfw/**/generate1.rsp"
+        "../../eng/silktouch/glfw/**/generate1.rsp",
+        "../../eng/silktouch/glfw/**/generate2.rsp"
       ],
       "InputSourceRoot": "../GLFW",
       "InputTestRoot": "../../tests/GLFW",
@@ -53,6 +54,11 @@
           {
             "SourceSubdirectory": "glfw3/test1",
             "Name": "test1",
+            "BakedOutputSubdirectory": "glfw3"
+          },
+          {
+            "SourceSubdirectory": "glfw3/test2",
+            "Name": "test2",
             "BakedOutputSubdirectory": "glfw3"
           }
         ]

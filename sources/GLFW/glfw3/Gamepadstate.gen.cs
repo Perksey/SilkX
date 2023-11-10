@@ -6,14 +6,17 @@ namespace Silk.NET.GLFW;
 // Original source is Copyright © 2002-2006 Marcus Geelnard, 2006-2019 Camilla Löwy. Licensed under the zlib license.
 using System.Runtime.InteropServices;
 
+[SupportedApiProfile("test2")]
 [SupportedApiProfile("test1")]
 public unsafe partial struct Gamepadstate
 {
     [NativeTypeName("unsigned char[15]")]
     [SupportedApiProfile("test1")]
+    [SupportedApiProfile("test2")]
     public fixed byte Buttons[15];
 
     [NativeTypeName("float[6]")]
     [SupportedApiProfile("test1")]
+    [SupportedApiProfile("test2")]
     public fixed float Axes[6];
 }
