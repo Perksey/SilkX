@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Silk.NET.Maths
@@ -17,7 +18,7 @@ namespace Silk.NET.Maths
         /// <returns>The resulting matrix.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Add<T>(Matrix4X3<T> value1, Matrix4X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             return value1 + value2;
         }
@@ -28,8 +29,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Multiply<T>(Matrix4X3<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
         /// <param name="value1">The first source matrix.</param>
@@ -37,8 +37,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X4<T> Multiply<T>(Matrix4X3<T> value1, Matrix3X4<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
         /// <param name="value1">The first source matrix.</param>
@@ -46,8 +45,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Multiply<T>(Matrix4X4<T> value1, Matrix4X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
         /// <param name="value1">The first source matrix.</param>
@@ -55,8 +53,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X3<T> Multiply<T>(Matrix3X4<T> value1, Matrix4X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a matrix by a scalar value.</summary>
         /// <param name="value1">The source matrix.</param>
@@ -64,8 +61,7 @@ namespace Silk.NET.Maths
         /// <returns>The scaled matrix.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Multiply<T>(Matrix4X3<T> value1, T value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a vector by a matrix.</summary>
         /// <param name="value1">The vector.</param>
@@ -73,16 +69,14 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Vector3D<T> Multiply<T>(Vector4D<T> value1, Matrix4X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Returns a new matrix with the negated elements of the given matrix.</summary>
         /// <param name="value">The source matrix.</param>
         /// <returns>The negated matrix.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Negate<T>(Matrix4X3<T> value)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => -value;
+            where T : unmanaged, INumber<T> => -value;
 
         /// <summary>Subtracts the second matrix from the first.</summary>
         /// <param name="value1">The first source matrix.</param>
@@ -90,8 +84,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the subtraction.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Subtract<T>(Matrix4X3<T> value1, Matrix4X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 - value2;
+            where T : unmanaged, INumber<T> => value1 - value2;
 
         /// <summary>Linearly interpolates between the corresponding values of two matrices.</summary>
         /// <param name="matrix1">The first source matrix.</param>
@@ -99,7 +92,7 @@ namespace Silk.NET.Maths
         /// <param name="amount">The relative weight of the second source matrix.</param>
         /// <returns>The interpolated matrix.</returns>
         public static unsafe Matrix4X3<T> Lerp<T>(Matrix4X3<T> matrix1, Matrix4X3<T> matrix2, T amount)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             return new(
                 Vector3D.Lerp(matrix1.Row1, matrix2.Row1, amount),

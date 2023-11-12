@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
@@ -14,7 +15,7 @@ namespace Silk.NET.Maths
     [DataContract]
     public struct Vector3D<T>
         : IEquatable<Vector3D<T>>, IFormattable
-        where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+        where T : unmanaged, INumber<T>
     {
         /// <summary>The X component of the vector.</summary>
         [DataMember]
@@ -289,7 +290,7 @@ namespace Silk.NET.Maths
         /// <returns>The <see cref="System.Numerics"/> vector</returns>
         public static explicit operator System.Numerics.Vector3(Vector3D<T> from)
             => new(Scalar.As<T, float>(from.X), Scalar.As<T, float>(from.Y), Scalar.As<T, float>(from.Z));
-        
+
         /// <summary>
         /// Converts a <see cref="Vector3D{T}"/> into one with a <typeparamref name="T"/> of <see cref="double"/>
         /// </summary>
@@ -369,13 +370,13 @@ namespace Silk.NET.Maths
         /// <returns>The <see cref="long"/> matrix</returns>
         public static explicit operator Vector3D<long>(Vector3D<T> from)
             => new(Scalar.As<T, long>(from.X), Scalar.As<T, long>(from.Y), Scalar.As<T, long>(from.Z));
-        
+
         /// <summary>
         /// Returns this vector casted to <typeparamref name="TOther"></typeparamref>
         /// </summary>
         /// <typeparam name="TOther">The type to cast to</typeparam>
         /// <returns>The casted vector</returns>
-        public Vector3D<TOther> As<TOther>() where TOther : unmanaged, IFormattable, IEquatable<TOther>, IComparable<TOther>
+        public Vector3D<TOther> As<TOther>() where TOther : unmanaged, INumber<TOther>
         {
             return new(Scalar.As<T, TOther>(X), Scalar.As<T, TOther>(Y), Scalar.As<T, TOther>(Z));
         }

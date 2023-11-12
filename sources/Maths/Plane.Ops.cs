@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Silk.NET.Maths
@@ -18,7 +19,7 @@ namespace Silk.NET.Maths
         /// <returns>The Plane containing the three points.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Plane<T> CreateFromVertices<T>(Vector3D<T> point1, Vector3D<T> point2, Vector3D<T> point3)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             var a = point1;
             var b = point2;
@@ -86,8 +87,7 @@ namespace Silk.NET.Maths
         /// <returns>The dot product.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static T Dot<T>(Plane<T> plane, Vector4D<T> value)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => Scalar.Add(
+            where T : unmanaged, INumber<T> => Scalar.Add(
                 Scalar.Add(
                     Scalar.Add(Scalar.Multiply(plane.Normal.X, value.X),
                         Scalar.Multiply(plane.Normal.Y, value.Y)), Scalar.Multiply(plane.Normal.Z, value.Z)),
@@ -99,8 +99,7 @@ namespace Silk.NET.Maths
         /// <returns>The resulting value.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static T DotCoordinate<T>(Plane<T> plane, Vector3D<T> value)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => Scalar.Add(Vector3D.Dot(plane.Normal, value), plane.Distance);
+            where T : unmanaged, INumber<T> => Scalar.Add(Vector3D.Dot(plane.Normal, value), plane.Distance);
 
         /// <summary>Returns the dot product of a specified Vector3D and the Normal vector of this Plane.</summary>
         /// <param name="plane">The plane.</param>
@@ -108,8 +107,7 @@ namespace Silk.NET.Maths
         /// <returns>The resulting dot product.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static T DotNormal<T>(Plane<T> plane, Vector3D<T> value)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => Vector3D.Dot(plane.Normal, value);
+            where T : unmanaged, INumber<T> => Vector3D.Dot(plane.Normal, value);
 
         private const float NormalizeEpsilon = 1.192092896e-07f; // smallest such that 1.0+NormalizeEpsilon != 1.0
 
@@ -118,7 +116,7 @@ namespace Silk.NET.Maths
         /// <returns>The normalized Plane.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Plane<T> Normalize<T>(Plane<T> value)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             /*if (Vector.IsHardwareAccelerated)
             {
@@ -162,7 +160,7 @@ namespace Silk.NET.Maths
         /// <returns>The transformed Plane.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Plane<T> Transform<T>(Plane<T> plane, Matrix4X4<T> matrix)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix4X4.Invert(matrix, out Matrix4X4<T> m);
 
@@ -182,7 +180,7 @@ namespace Silk.NET.Maths
         /// <returns>A new Plane that results from applying the rotation.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Plane<T> Transform<T>(Plane<T> plane, Quaternion<T> rotation)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             // Compute rotation matrix.
             T x2 = Scalar.Add(rotation.X, rotation.X);

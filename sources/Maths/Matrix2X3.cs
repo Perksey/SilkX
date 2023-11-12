@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
@@ -12,7 +13,7 @@ namespace Silk.NET.Maths
     [Serializable]
     [DataContract]
     public struct Matrix2X3<T> : IEquatable<Matrix2X3<T>>
-        where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+        where T : unmanaged, INumber<T>
     {
         private static readonly Matrix2X3<T> _identity = new
         (
@@ -310,7 +311,7 @@ namespace Silk.NET.Maths
             => this == other;
 
         /// <summary>Returns the hash code for this instance.</summary>
-        /// <returns>The hash code.</returns>   
+        /// <returns>The hash code.</returns>
         public override readonly int GetHashCode()
         {
             HashCode hash = default;
@@ -448,13 +449,13 @@ namespace Silk.NET.Maths
         public static explicit operator Matrix2X3<long>(Matrix2X3<T> from)
             => new(Scalar.As<T, long>(from.M11), Scalar.As<T, long>(from.M12), Scalar.As<T, long>(from.M13),
                 Scalar.As<T, long>(from.M21), Scalar.As<T, long>(from.M22), Scalar.As<T, long>(from.M23));
-        
+
         /// <summary>
         /// Returns this matrix casted to <typeparamref name="TOther"></typeparamref>
         /// </summary>
         /// <typeparam name="TOther">The type to cast to</typeparam>
         /// <returns>The casted matrix</returns>
-        public Matrix2X3<TOther> As<TOther>() where TOther : unmanaged, IFormattable, IEquatable<TOther>, IComparable<TOther>
+        public Matrix2X3<TOther> As<TOther>() where TOther : unmanaged, INumber<TOther>
         {
             return new(Row1.As<TOther>(), Row2.As<TOther>());
         }

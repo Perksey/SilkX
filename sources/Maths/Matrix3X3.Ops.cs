@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Silk.NET.Maths
@@ -15,7 +16,7 @@ namespace Silk.NET.Maths
         private const float DecomposeEpsilon = 0.0001f;
 
         private struct CanonicalBasis<T>
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             public Vector3D<T> Row0;
             public Vector3D<T> Row1;
@@ -23,7 +24,7 @@ namespace Silk.NET.Maths
         };
 
         private struct VectorBasis<T>
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
 #pragma warning disable 649
             public unsafe Vector3D<T>* Element0;
@@ -38,7 +39,7 @@ namespace Silk.NET.Maths
         /// <returns>The resulting matrix.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X3<T> Add<T>(Matrix3X3<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             return value1 + value2;
         }
@@ -50,7 +51,7 @@ namespace Silk.NET.Maths
         /// <param name="cameraForwardVector">The forward vector of the camera.</param>
         /// <returns>The created billboard matrix</returns>
         public static Matrix3X3<T> CreateBillboard<T>(Vector3D<T> objectPosition, Vector3D<T> cameraPosition, Vector3D<T> cameraUpVector, Vector3D<T> cameraForwardVector)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Vector3D<T> zaxis = objectPosition - cameraPosition;
             var norm = zaxis.LengthSquared;
@@ -75,7 +76,7 @@ namespace Silk.NET.Maths
         /// <param name="angle">The angle to rotate around the given axis, in radians.</param>
         /// <returns>The rotation matrix.</returns>
         public static Matrix3X3<T> CreateFromAxisAngle<T>(Vector3D<T> axis, T angle)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             // a: angle
             // x, y, z: unit vector for axis.
@@ -128,7 +129,7 @@ namespace Silk.NET.Maths
         /// <param name="quaternion">The source Quaternion.</param>
         /// <returns>The rotation matrix.</returns>
         public static Matrix3X3<T> CreateFromQuaternion<T>(Quaternion<T> quaternion)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
 
@@ -165,7 +166,7 @@ namespace Silk.NET.Maths
         /// <param name="roll">Angle of rotation, in radians, around the Z-axis.</param>
         /// <returns>The rotation matrix.</returns>
         public static Matrix3X3<T> CreateFromYawPitchRoll<T>(T yaw, T pitch, T roll)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Quaternion<T> q = Quaternion<T>.CreateFromYawPitchRoll(yaw, pitch, roll);
             return CreateFromQuaternion(q);
@@ -175,7 +176,7 @@ namespace Silk.NET.Maths
         /// <param name="radians">The amount, in radians, by which to rotate around the X-axis.</param>
         /// <returns>The rotation matrix.</returns>
         public static Matrix3X3<T> CreateRotationX<T>(T radians)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
 
@@ -199,7 +200,7 @@ namespace Silk.NET.Maths
         /// <param name="radians">The amount, in radians, by which to rotate around the Y-axis.</param>
         /// <returns>The rotation matrix.</returns>
         public static Matrix3X3<T> CreateRotationY<T>(T radians)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
 
@@ -222,7 +223,7 @@ namespace Silk.NET.Maths
         /// <param name="radians">The amount, in radians, by which to rotate around the Z-axis.</param>
         /// <returns>The rotation matrix.</returns>
         public static Matrix3X3<T> CreateRotationZ<T>(T radians)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
 
@@ -247,7 +248,7 @@ namespace Silk.NET.Maths
         /// <param name="zScale">Value to scale by on the Z-axis.</param>
         /// <returns>The scaling matrix.</returns>
         public static Matrix3X3<T> CreateScale<T>(T xScale, T yScale, T zScale)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
             result.M11 = xScale;
@@ -260,7 +261,7 @@ namespace Silk.NET.Maths
         /// <param name="scales">The vector containing the amount to scale by on each axis.</param>
         /// <returns>The scaling matrix.</returns>
         public static Matrix3X3<T> CreateScale<T>(Vector3D<T> scales)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
             result.M11 = scales.X;
@@ -273,7 +274,7 @@ namespace Silk.NET.Maths
         /// <param name="scale">The uniform scaling factor.</param>
         /// <returns>The scaling matrix.</returns>
         public static Matrix3X3<T> CreateScale<T>(T scale)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             Matrix3X3<T> result = Matrix3X3<T>.Identity;
 
@@ -290,8 +291,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X3<T> Multiply<T>(Matrix3X3<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
         /// <param name="value1">The first source matrix.</param>
@@ -299,8 +299,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix2X3<T> Multiply<T>(Matrix2X3<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
@@ -309,8 +308,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X2<T> Multiply<T>(Matrix3X3<T> value1, Matrix3X2<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
@@ -319,8 +317,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix4X3<T> Multiply<T>(Matrix4X3<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
 
         /// <summary>Multiplies a matrix by another matrix.</summary>
@@ -329,8 +326,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X4<T> Multiply<T>(Matrix3X3<T> value1, Matrix3X4<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a matrix by a scalar value.</summary>
         /// <param name="value1">The source matrix.</param>
@@ -338,8 +334,7 @@ namespace Silk.NET.Maths
         /// <returns>The scaled matrix.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X3<T> Multiply<T>(Matrix3X3<T> value1, T value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Multiplies a vector by a matrix.</summary>
         /// <param name="value1">The vector.</param>
@@ -347,16 +342,14 @@ namespace Silk.NET.Maths
         /// <returns>The result of the multiplication.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Vector3D<T> Multiply<T>(Vector3D<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 * value2;
+            where T : unmanaged, INumber<T> => value1 * value2;
 
         /// <summary>Returns a new matrix with the negated elements of the given matrix.</summary>
         /// <param name="value">The source matrix.</param>
         /// <returns>The negated matrix.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X3<T> Negate<T>(Matrix3X3<T> value)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => -value;
+            where T : unmanaged, INumber<T> => -value;
 
         /// <summary>Subtracts the second matrix from the first.</summary>
         /// <param name="value1">The first source matrix.</param>
@@ -364,8 +357,7 @@ namespace Silk.NET.Maths
         /// <returns>The result of the subtraction.</returns>
         [MethodImpl((MethodImplOptions) 768)]
         public static Matrix3X3<T> Subtract<T>(Matrix3X3<T> value1, Matrix3X3<T> value2)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
-            => value1 - value2;
+            where T : unmanaged, INumber<T> => value1 - value2;
 
         /// <summary>Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
         /// If successful, the out parameters will contained the extracted values.</summary>
@@ -374,7 +366,7 @@ namespace Silk.NET.Maths
         /// <param name="rotation">The rotation component of the transformation matrix.</param>
         /// <returns>True if the source matrix was successfully decomposed; False otherwise.</returns>
         public static bool Decompose<T>(Matrix3X3<T> matrix, out Vector3D<T> scale, out Quaternion<T> rotation)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             bool result = true;
 
@@ -566,7 +558,7 @@ namespace Silk.NET.Maths
         /// <param name="amount">The relative weight of the second source matrix.</param>
         /// <returns>The interpolated matrix.</returns>
         public static unsafe Matrix3X3<T> Lerp<T>(Matrix3X3<T> matrix1, Matrix3X3<T> matrix2, T amount)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             return new(
                 Vector3D.Lerp(matrix1.Row1, matrix2.Row1, amount),
@@ -580,7 +572,7 @@ namespace Silk.NET.Maths
         /// <param name="rotation">The rotation to apply.</param>
         /// <returns>The transformed matrix.</returns>
         public static Matrix3X3<T> Transform<T>(Matrix3X3<T> value, Quaternion<T> rotation)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             // Compute rotation matrix.
             T x2 = Scalar.Add(rotation.X, rotation.X);
@@ -620,7 +612,7 @@ namespace Silk.NET.Maths
         /// <param name="matrix">The source matrix.</param>
         /// <returns>The transposed matrix.</returns>
         public static unsafe Matrix3X3<T> Transpose<T>(Matrix3X3<T> matrix)
-            where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+            where T : unmanaged, INumber<T>
         {
             return new(matrix.Column1, matrix.Column2, matrix.Column3);
         }
